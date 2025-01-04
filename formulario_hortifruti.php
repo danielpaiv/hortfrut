@@ -1,8 +1,19 @@
+<?php
+include 'db_connection.php';
 
+// Abrir conexão com o banco de dados
+$conn = OpenCon();
 
+// Consultar os produtos no estoque
+$sql_estoque = "SELECT produto FROM estoque";
+$result_estoque = $conn->query($sql_estoque);
+
+// Fechar a conexão após a consulta
+CloseCon($conn);
+?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,20 +64,27 @@
     </style>
 </head>
 <body>
+<a href="formulario_estoque.php">Estoque</a>
+<a href="gestao.php">Gestão</a>
+<a href="financeiro.php">Financeiro</a>
     <div class="container">
         <h2>Formulário de Vendas - Hortifruti</h2>
-        <form id="sales-form" action="processa_venda.php" method="post">
+        <form id="sales-form" action="process_form.php" method="post">
             <!-- Produto -->
             <div class="form-group">
                 <label for="product">Produto:</label>
                 <select id="product" name="product" required>
                     <option value="">Selecione o produto</option>
-                    <option value="banana">Banana</option>
-                    <option value="maça">Maçã</option>
-                    <option value="laranja">Laranja</option>
-                    <option value="tomate">Tomate</option>
-                    <option value="limao">Limão</option>
-                    <option value="cebola">Cebola</option>
+                    <?php
+                    if ($result_estoque->num_rows > 0) {
+                        // Preencher as opções do select com os produtos do estoque
+                        while($row = $result_estoque->fetch_assoc()) {
+                            echo "<option value='" . $row['produto'] . "'>" . $row['produto'] . "</option>";
+                        }
+                    } else {
+                        echo "<option value=''>Nenhum produto cadastrado no estoque</option>";
+                    }
+                    ?>
                 </select>
             </div>
 
@@ -125,19 +143,14 @@
             totalPriceInput.value = (quantity * unitPrice).toFixed(2);
         }
 
-        // Validar pagamentos
         form.addEventListener('submit', (event) => {
-            event.preventDefault();
-
             const total = parseFloat(totalPriceInput.value) || 0;
             const cash = parseFloat(cashPaymentInput.value) || 0;
             const card = parseFloat(cardPaymentInput.value) || 0;
 
             if (cash + card !== total) {
+                event.preventDefault();
                 alert('Os valores de pagamento não correspondem ao total. Por favor, revise os valores.');
-            } else {
-                alert('Venda finalizada com sucesso!');
-                form.reset();
             }
         });
 
