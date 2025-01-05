@@ -8,8 +8,10 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color:rgb(0, 37, 160);
         }
         .container {
+            background-color:rgb(181, 179, 199);
             max-width: 600px;
             margin: auto;
             padding: 20px;
@@ -40,10 +42,16 @@
         button:hover {
             background-color: #218838;
         }
+        a{
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
+    <button>
     <a href="http://localhost/hortifruti/formulario_hortifruti.php">Voltar</a>
+    </button>
+    
     <div class="container">
         <h2>Cadastro de Produtos - Estoque</h2>
         <form id="stock-form" action="process_estoque.php" method="post">

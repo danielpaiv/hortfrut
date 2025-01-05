@@ -22,8 +22,10 @@ CloseCon($conn);
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color:rgb(0, 37, 160);
         }
         .container {
+            background-color:rgb(181, 179, 199);
             max-width: 600px;
             margin: auto;
             padding: 20px;
@@ -61,12 +63,28 @@ CloseCon($conn);
         button:hover {
             background-color: #218838;
         }
+        a{
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
-<a href="formulario_estoque.php">Estoque</a>
-<a href="gestao.php">Gestão</a>
-<a href="financeiro.php">Financeiro</a>
+    <button>
+        <a href="formulario_estoque.php">Estoque</a>
+    </button>
+
+    <button>
+        <a href="gestao.php">Gestão</a>
+    </button>
+
+    <button>
+        <a href="financeiro.php">Financeiro</a>
+    </button>
+
+    <button>
+        <a href="vendas.php">Vendas</a>
+    </button>
+
     <div class="container">
         <h2>Formulário de Vendas - Hortifruti</h2>
         <form id="sales-form" action="process_form.php" method="post">
@@ -157,6 +175,15 @@ CloseCon($conn);
         // Eventos para atualizar o total automaticamente
         quantityInput.addEventListener('input', updateTotal);
         unitPriceInput.addEventListener('input', updateTotal);
+
+        // A função abaixo será chamada ao finalizar a venda.
+        // A página será redirecionada para uma nova página de confirmação de venda e a impressão será acionada lá.
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            setTimeout(function () {
+                window.location.href = "venda_finalizada.php";  // Redireciona para a página de confirmação
+            }, 500);
+        });
     </script>
 </body>
 </html>
