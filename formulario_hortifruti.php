@@ -178,12 +178,12 @@ CloseCon($conn);
 
         // A função abaixo será chamada ao finalizar a venda.
         // A página será redirecionada para uma nova página de confirmação de venda e a impressão será acionada lá.
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            setTimeout(function () {
-                window.location.href = "venda_finalizada.php";  // Redireciona para a página de confirmação
-            }, 500);
-        });
+       // form.addEventListener('submit', (event) => {
+         //   event.preventDefault();
+           // setTimeout(function () {
+             //   window.location.href = "venda_finalizada.php";  // Redireciona para a página de confirmação
+           // }, 500);
+        //});
     </script>
 </body>
 </html>
