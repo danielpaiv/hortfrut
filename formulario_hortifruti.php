@@ -45,12 +45,8 @@ CloseCon($conn);
             padding: 8px;
             box-sizing: border-box;
         }
-        .payment-group {
-            display: flex;
-            gap: 10px;
-        }
-        .payment-group div {
-            flex: 1;
+        .buttons {
+            margin-bottom: 20px;
         }
         button {
             background-color: #28a745;
@@ -63,39 +59,43 @@ CloseCon($conn);
         button:hover {
             background-color: #218838;
         }
-        a{
-            text-decoration: none;
+        .cart {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
         }
     </style>
 </head>
 <body>
-    <button>
-        <a href="formulario_estoque.php">Estoque</a>
-    </button>
-
-    <button>
-        <a href="gestao.php">Gestão</a>
-    </button>
-
-    <button>
-        <a href="financeiro.php">Financeiro</a>
-    </button>
-
-    <button>
-        <a href="vendas.php">Vendas</a>
-    </button>
+    <div class="buttons">
+        <button><a href="formulario_estoque.php" style="color: white; text-decoration: none;">Estoque</a></button>
+        <button><a href="gestao.php" style="color: white; text-decoration: none;">Gestão</a></button>
+        <button><a href="financeiro.php" style="color: white; text-decoration: none;">Financeiro</a></button>
+        <button><a href="vendas.php" style="color: white; text-decoration: none;">Vendas</a></button>
+    </div>
 
     <div class="container">
         <h2>Formulário de Vendas - Hortifruti</h2>
-        <form id="sales-form" action="process_form.php" method="post">
-            <!-- Produto -->
+        <form id="sales-form">
             <div class="form-group">
                 <label for="product">Produto:</label>
                 <select id="product" name="product" required>
                     <option value="">Selecione o produto</option>
                     <?php
                     if ($result_estoque->num_rows > 0) {
-                        // Preencher as opções do select com os produtos do estoque
                         while($row = $result_estoque->fetch_assoc()) {
                             echo "<option value='" . $row['produto'] . "'>" . $row['produto'] . "</option>";
                         }
@@ -106,84 +106,159 @@ CloseCon($conn);
                 </select>
             </div>
 
-            <!-- Quantidade -->
             <div class="form-group">
                 <label for="quantity">Quantidade (kg):</label>
                 <input type="number" id="quantity" name="quantity" step="0.01" min="0" required>
             </div>
 
-            <!-- Preço unitário -->
             <div class="form-group">
                 <label for="unit-price">Preço Unitário (R$):</label>
                 <input type="number" id="unit-price" name="unit-price" step="0.01" min="0" required>
             </div>
 
-            <!-- Total -->
             <div class="form-group">
-                <label for="total-price">Valor Total (R$):</label>
-                <input type="number" id="total-price" name="total-price" step="0.01" min="0" readonly>
-            </div>
-
-            <!-- Formas de Pagamento -->
-            <div class="form-group">
-                <label>Forma de Pagamento:</label>
-                <div class="payment-group">
-                    <div>
-                        <label for="cash-payment">Dinheiro (R$):</label>
-                        <input type="number" id="cash-payment" name="cash-payment" step="0.01" min="0">
-                    </div>
-                    <div>
-                        <label for="card-payment">Cartão (R$):</label>
-                        <input type="number" id="card-payment" name="card-payment" step="0.01" min="0">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botão de Submissão -->
-            <div class="form-group">
-                <button type="submit">Finalizar Venda</button>
+                <button type="button" id="add-to-cart">Adicionar ao Carrinho</button>
             </div>
         </form>
+
+        <div class="cart">
+            <h3>Carrinho</h3>
+            <table id="cart-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Quantidade (kg)</th>
+                        <th>Preço Unitário (R$)</th>
+                        <th>Valor Total (R$)</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="form-group">
+                <label for="cash-payment">Dinheiro (R$):</label>
+                <input type="number" id="cash-payment" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="card-payment">Cartão (R$):</label>
+                <input type="number" id="card-payment" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <button id="finalize-sale">Finalizar Venda</button>
+                <button id="print-cart">Imprimir Carrinho</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const form = document.getElementById('sales-form');
-        const quantityInput = document.getElementById('quantity');
-        const unitPriceInput = document.getElementById('unit-price');
-        const totalPriceInput = document.getElementById('total-price');
-        const cashPaymentInput = document.getElementById('cash-payment');
-        const cardPaymentInput = document.getElementById('card-payment');
+        const cartTableBody = document.querySelector("#cart-table tbody");
+        const addToCartButton = document.getElementById("add-to-cart");
+        const finalizeSaleButton = document.getElementById("finalize-sale");
+        const printCartButton = document.getElementById("print-cart");
+        const cashPaymentInput = document.getElementById("cash-payment");
+        const cardPaymentInput = document.getElementById("card-payment");
 
-        // Atualizar o valor total automaticamente
-        function updateTotal() {
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const unitPrice = parseFloat(unitPriceInput.value) || 0;
-            totalPriceInput.value = (quantity * unitPrice).toFixed(2);
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        function updateCartTable() {
+            cartTableBody.innerHTML = "";
+            cart.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.product}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.unitPrice}</td>
+                    <td>${item.totalPrice}</td>
+                    <td><button onclick="removeFromCart(${index})">Remover</button></td>
+                `;
+                cartTableBody.appendChild(row);
+            });
         }
 
-        form.addEventListener('submit', (event) => {
-            const total = parseFloat(totalPriceInput.value) || 0;
+        function addToCart() {
+            const product = document.getElementById("product").value;
+            const quantity = parseFloat(document.getElementById("quantity").value) || 0;
+            const unitPrice = parseFloat(document.getElementById("unit-price").value) || 0;
+            const totalPrice = (quantity * unitPrice).toFixed(2);
+
+            if (product && quantity > 0 && unitPrice > 0) {
+                cart.push({ product, quantity, unitPrice, totalPrice });
+                localStorage.setItem("cart", JSON.stringify(cart));
+                updateCartTable();
+            } else {
+                alert("Preencha todos os campos corretamente.");
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCartTable();
+        }
+
+        function finalizeSale() {
+            const total = cart.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0);
             const cash = parseFloat(cashPaymentInput.value) || 0;
             const card = parseFloat(cardPaymentInput.value) || 0;
 
-            if (cash + card !== total) {
-                event.preventDefault();
-                alert('Os valores de pagamento não correspondem ao total. Por favor, revise os valores.');
+            if (cash + card === total) {
+                // Enviar os dados para o servidor (chame o seu processo de envio para o banco de dados)
+                const formData = new FormData();
+                
+                // Enviar cada item do carrinho como parâmetros individuais
+                cart.forEach((item, index) => {
+                    formData.append(`product[${index}][name]`, item.product);
+                    formData.append(`product[${index}][quantity]`, item.quantity);
+                    formData.append(`product[${index}][unitPrice]`, item.unitPrice);
+                    formData.append(`product[${index}][totalPrice]`, item.totalPrice);
+                });
+
+                // Enviar o valor do pagamento
+                formData.append("cash-payment", cash);
+                formData.append("card-payment", card);
+
+                fetch("process_form.php", {
+                    method: "POST",
+                    body: formData,
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert("Venda finalizada com sucesso!");
+                    // Limpar o carrinho do localStorage
+                    localStorage.removeItem("cart");
+                    cart = [];  // Limpa o array do carrinho
+                    updateCartTable();  // Atualiza a tabela para refletir que o carrinho está vazio
+
+                    // Redireciona de volta para o formulário
+                    window.location.href = "formulario_hortifruti.php";
+                })
+                .catch(error => {
+                    alert("Ocorreu um erro ao finalizar a venda. Tente novamente.");
+                    console.error(error);
+                });
+            } else {
+                alert("Os valores de pagamento não correspondem ao total do carrinho.");
             }
+        }
+
+        function printCart() {
+            window.print();
+        }
+
+        addToCartButton.addEventListener("click", addToCart);
+        finalizeSaleButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            finalizeSale();
+        });
+        printCartButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            printCart();
         });
 
-        // Eventos para atualizar o total automaticamente
-        quantityInput.addEventListener('input', updateTotal);
-        unitPriceInput.addEventListener('input', updateTotal);
-
-        // A função abaixo será chamada ao finalizar a venda.
-        // A página será redirecionada para uma nova página de confirmação de venda e a impressão será acionada lá.
-       // form.addEventListener('submit', (event) => {
-         //   event.preventDefault();
-           // setTimeout(function () {
-             //   window.location.href = "venda_finalizada.php";  // Redireciona para a página de confirmação
-           // }, 500);
-        //});
+        document.addEventListener("DOMContentLoaded", updateCartTable);
     </script>
 </body>
 </html>

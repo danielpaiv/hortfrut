@@ -2,25 +2,33 @@
 include 'db_connection.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $produto = $_POST['product'];
-    $quantidade = $_POST['quantity'];
-    $preco_unitario = $_POST['unit-price'];
-    $valor_total = $_POST['total-price'];
+    // Obter os dados dos produtos enviados
+    $produtos = $_POST['product'];
     $pagamento_dinheiro = $_POST['cash-payment'];
     $pagamento_cartao = $_POST['card-payment'];
 
-    // Abrir conexão
+    // Abrir conexão com o banco de dados
     $conn = OpenCon();
 
-    // Exemplo de inserção segura usando MySQLi
-    $stmt = $conn->prepare("INSERT INTO vendas (produto, quantidade, preco_unitario, valor_total, pagamento_dinheiro, pagamento_cartao) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sddddd", $produto, $quantidade, $preco_unitario, $valor_total, $pagamento_dinheiro, $pagamento_cartao);
-    $stmt->execute();
-    $stmt->close();
+    // Processar cada produto e inserir na tabela de vendas
+    foreach ($produtos as $produto) {
+        $produto_nome = $produto['name'];
+        $quantidade = $produto['quantity'];
+        $preco_unitario = $produto['unitPrice'];
+        $valor_total = $produto['totalPrice'];
 
-    // Fechar conexões
+        // Exemplo de inserção segura usando MySQLi
+        $stmt = $conn->prepare("INSERT INTO vendas (produto, quantidade, preco_unitario, valor_total, pagamento_dinheiro, pagamento_cartao) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sddddd", $produto_nome, $quantidade, $preco_unitario, $valor_total, $pagamento_dinheiro, $pagamento_cartao);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    // Fechar a conexão
     CloseCon($conn);
-    echo "<script>alert('Venda finalizada com sucesso!'); window.location.href='formulario_hortifruti.php';</script>";
+
+    // Responder ao cliente (confirmação de sucesso)
+    echo "Venda finalizada com sucesso!";
 } else {
     echo "Método de requisição inválido.";
 }
