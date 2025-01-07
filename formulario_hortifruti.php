@@ -23,14 +23,26 @@ CloseCon($conn);
             font-family: Arial, sans-serif;
             margin: 20px;
             background-color:rgb(0, 37, 160);
+           display: flex;
+            justify-content: space-between;
+            
         }
         .container {
+            position: fixed;
+            top: 20%;
             background-color:rgb(181, 179, 199);
-            max-width: 600px;
+            max-width: 400px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
+            border-collapse: collapse;
+            display: flex;
+            justify-content: space-between; /* Espaço entre os objetos */
+            align-items: center; /* Alinha os objetos verticalmente no centro */
+            gap: 50px; /* Espaçamento entre os objetos */
+
+           
         }
         .form-group {
             margin-bottom: 15px;
@@ -60,15 +72,21 @@ CloseCon($conn);
             background-color: #218838;
         }
         .cart {
+            position: fixed;
             margin-top: 20px;
             background-color: #fff;
             padding: 15px;
             border-radius: 5px;
+           /* width: 100%;*/
+            margin-left:50%;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            /*border-collapse: collapse;*/
+            width: 50%; /* Ajusta o tamanho das tabelas */
+            max-width: 45%; /* Limita a largura para caber lado a lado */
         }
         table, th, td {
             border: 1px solid #ddd;
@@ -77,6 +95,8 @@ CloseCon($conn);
             padding: 10px;
             text-align: left;
         }
+
+        
     </style>
 </head>
 <body>
@@ -120,7 +140,7 @@ CloseCon($conn);
                 <button type="button" id="add-to-cart">Adicionar ao Carrinho</button>
             </div>
         </form>
-
+    </div>
         <div class="cart">
             <h3>Carrinho</h3>
             <table id="cart-table">
@@ -151,7 +171,7 @@ CloseCon($conn);
                 <button id="print-cart">Imprimir Carrinho</button>
             </div>
         </div>
-    </div>
+    
 
     <script>
         const cartTableBody = document.querySelector("#cart-table tbody");
@@ -176,6 +196,21 @@ CloseCon($conn);
                 `;
                 cartTableBody.appendChild(row);
             });
+
+            // Adicionar o subtotal na última linha da tabela
+                const subtotal = calculateSubtotal();
+                const subtotalRow = document.createElement("tr");
+                subtotalRow.innerHTML = `
+                    <td colspan="3" style="text-align: right; font-weight: bold;">Subtotal</td>
+                    <td>${subtotal}</td>
+                    <td></td>
+                `;
+                cartTableBody.appendChild(subtotalRow);
+
+                // Função para calcular o subtotal
+                function calculateSubtotal() {
+                    return cart.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0).toFixed(2);
+            }
         }
 
         function addToCart() {
@@ -245,6 +280,38 @@ CloseCon($conn);
         }
 
         function printCart() {
+
+            const cartContent = document.querySelector(".cart").innerHTML; // Captura o conteúdo da div do carrinho
+    const originalContent = document.body.innerHTML; // Salva o conteúdo original da página
+
+    // Define o conteúdo da página como apenas o carrinho a ser imprimido
+    document.body.innerHTML = `
+        <html>
+        <head>
+            <title>Impressão do Carrinho</title>
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f2f2f2;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="cart">
+                <h3>Carrinho</h3>
+                ${cartContent}
+            </div>
+        </body>
+        </html>
+    `;
             window.print();
         }
 
