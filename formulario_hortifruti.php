@@ -5,7 +5,7 @@ include 'db_connection.php';
 $conn = OpenCon();
 
 // Consultar os produtos no estoque
-$sql_estoque = "SELECT produto FROM estoque";
+$sql_estoque = "SELECT id, produto FROM estoque";
 $result_estoque = $conn->query($sql_estoque);
 
 // Fechar a conexão após a consulta
@@ -31,7 +31,7 @@ CloseCon($conn);
             position: fixed;
             top: 20%;
             background-color:rgb(181, 179, 199);
-            max-width: 400px;
+            max-width: 800px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -72,19 +72,18 @@ CloseCon($conn);
             background-color: #218838;
         }
         .cart {
-            position: fixed;
             margin-top: 20px;
             background-color: #fff;
             padding: 15px;
             border-radius: 5px;
-           /* width: 100%;*/
-            margin-left:50%;
+           /* width: 100%;
+            margin-left:20%;*/
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            /*border-collapse: collapse;*/
+            border-collapse: collapse;
             width: 50%; /* Ajusta o tamanho das tabelas */
             max-width: 45%; /* Limita a largura para caber lado a lado */
         }
@@ -110,6 +109,13 @@ CloseCon($conn);
     <div class="container">
         <h2>Formulário de Vendas - Hortifruti</h2>
         <form id="sales-form">
+            <!-- Campo de ID do Produto -->
+            <div class="form-group">
+                <label for="product-id">ID do Produto:</label>
+                <input type="number" id="product-id" name="product-id" required>
+            </div>
+
+            <!-- Campo de Nome do Produto -->
             <div class="form-group">
                 <label for="product">Produto:</label>
                 <select id="product" name="product" required>
@@ -141,37 +147,37 @@ CloseCon($conn);
             </div>
         </form>
     </div>
-        <div class="cart">
-            <h3>Carrinho</h3>
-            <table id="cart-table">
-                <thead>
-                    <tr>
-                        <th>Produto</th>
-                        <th>Quantidade (kg)</th>
-                        <th>Preço Unitário (R$)</th>
-                        <th>Valor Total (R$)</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
-            <div class="form-group">
-                <label for="cash-payment">Dinheiro (R$):</label>
-                <input type="number" id="cash-payment" step="0.01" min="0">
-            </div>
-
-            <div class="form-group">
-                <label for="card-payment">Cartão (R$):</label>
-                <input type="number" id="card-payment" step="0.01" min="0">
-            </div>
-
-            <div class="form-group">
-                <button id="finalize-sale">Finalizar Venda</button>
-                <button id="print-cart">Imprimir Carrinho</button>
-            </div>
-        </div>
     
+    <div class="cart">
+        <h3>Carrinho</h3>
+        <table id="cart-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade (kg)</th>
+                    <th>Preço Unitário (R$)</th>
+                    <th>Valor Total (R$)</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="form-group">
+            <label for="cash-payment">Dinheiro (R$):</label>
+            <input type="number" id="cash-payment" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="card-payment">Cartão (R$):</label>
+            <input type="number" id="card-payment" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+            <button id="finalize-sale">Finalizar Venda</button>
+            <button id="print-cart">Imprimir Carrinho</button>
+        </div>
+    </div>
 
     <script>
         const cartTableBody = document.querySelector("#cart-table tbody");
@@ -180,9 +186,58 @@ CloseCon($conn);
         const printCartButton = document.getElementById("print-cart");
         const cashPaymentInput = document.getElementById("cash-payment");
         const cardPaymentInput = document.getElementById("card-payment");
+        const productIdInput = document.getElementById("product-id");
+        const productInput = document.getElementById("product");
+        const unitPriceInput = document.getElementById("unit-price");
+
+        productIdInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") { // Verifica se a tecla pressionada foi Enter
+        event.preventDefault(); // Evita o comportamento padrão (submissão de formulário ou avanço para o próximo campo)
+        
+        // Verifica se o campo ID do produto está vazio
+        if (productIdInput.value.trim() === "") {
+           
+            productIdInput.focus(); // Foca no campo de ID novamente
+        } else {
+            document.getElementById("quantity").focus(); // Foca no campo de quantidade se o campo ID não estiver vazio
+        }
+    }
+});
+
+productIdInput.addEventListener("blur", function () {
+    const productId = productIdInput.value;
+    if (productId) {
+        fetch(`get_product_by_id.php?id=${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.product) {
+                    productInput.value = data.product;
+                    document.getElementById("unit-price").value = data.unit_price || ""; // Preenche o preço unitário
+                } else {
+                    alert(data.error || "Produto não encontrado.");
+                    productInput.value = "";
+                    document.getElementById("unit-price").value = ""; // Limpa o preço unitário
+                }
+            })
+            .catch(error => {
+                alert("Erro ao buscar o produto.");
+                console.error(error);
+            });
+    }
+});
+
+        // Adicionar um evento para mover o foco para o botão "Adicionar ao Carrinho" após preencher a quantidade
+        document.getElementById("quantity").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") { // Verifica se a tecla pressionada foi Enter
+                event.preventDefault(); // Evita que a tecla Enter faça o comportamento padrão (como enviar formulário)
+                document.getElementById("add-to-cart").focus(); // Foca no botão "Adicionar ao Carrinho"
+            }
+        });
+
 
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+        // Atualiza a tabela do carrinho
         function updateCartTable() {
             cartTableBody.innerHTML = "";
             cart.forEach((item, index) => {
@@ -197,22 +252,21 @@ CloseCon($conn);
                 cartTableBody.appendChild(row);
             });
 
-            // Adicionar o subtotal na última linha da tabela
-                const subtotal = calculateSubtotal();
-                const subtotalRow = document.createElement("tr");
-                subtotalRow.innerHTML = `
-                    <td colspan="3" style="text-align: right; font-weight: bold;">Subtotal</td>
-                    <td>${subtotal}</td>
-                    <td></td>
-                `;
-                cartTableBody.appendChild(subtotalRow);
+            const subtotal = calculateSubtotal();
+            const subtotalRow = document.createElement("tr");
+            subtotalRow.innerHTML = `
+                <td colspan="3" style="text-align: right; font-weight: bold;">Subtotal</td>
+                <td>${subtotal}</td>
+                <td></td>
+            `;
+            cartTableBody.appendChild(subtotalRow);
 
-                // Função para calcular o subtotal
-                function calculateSubtotal() {
-                    return cart.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0).toFixed(2);
+            function calculateSubtotal() {
+                return cart.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0).toFixed(2);
             }
         }
 
+        // Função de adicionar ao carrinho
         function addToCart() {
             const product = document.getElementById("product").value;
             const quantity = parseFloat(document.getElementById("quantity").value) || 0;
@@ -223,27 +277,56 @@ CloseCon($conn);
                 cart.push({ product, quantity, unitPrice, totalPrice });
                 localStorage.setItem("cart", JSON.stringify(cart));
                 updateCartTable();
+
+                // Retornar o foco para o campo de ID
+                document.getElementById("product-id").focus();
+
+                // Limpar os campos preenchidos
+                document.getElementById("quantity").value = "";
+                document.getElementById("unit-price").value = "";
+                document.getElementById("product").value = "";
+                document.getElementById("product-id").value = "";
             } else {
                 alert("Preencha todos os campos corretamente.");
             }
         }
 
+        // Função de pesquisa do produto pelo ID
+        productIdInput.addEventListener("blur", function() {
+            const productId = productIdInput.value;
+            if (productId) {
+                fetch(`get_product_by_id.php?id=${productId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.product) {
+                            productInput.value = data.product;
+                        } else {
+                            alert("Produto não encontrado.");
+                            productInput.value = "";
+                        }
+                    })
+                    .catch(error => {
+                        alert("Erro ao buscar o produto.");
+                        console.error(error);
+                    });
+            }
+        });
+
+        // Função para remover item do carrinho
         function removeFromCart(index) {
             cart.splice(index, 1);
             localStorage.setItem("cart", JSON.stringify(cart));
             updateCartTable();
         }
 
+        // Função para finalizar venda
         function finalizeSale() {
             const total = cart.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0);
             const cash = parseFloat(cashPaymentInput.value) || 0;
             const card = parseFloat(cardPaymentInput.value) || 0;
 
             if (cash + card === total) {
-                // Enviar os dados para o servidor (chame o seu processo de envio para o banco de dados)
                 const formData = new FormData();
-                
-                // Enviar cada item do carrinho como parâmetros individuais
                 cart.forEach((item, index) => {
                     formData.append(`product[${index}][name]`, item.product);
                     formData.append(`product[${index}][quantity]`, item.quantity);
@@ -251,7 +334,6 @@ CloseCon($conn);
                     formData.append(`product[${index}][totalPrice]`, item.totalPrice);
                 });
 
-                // Enviar o valor do pagamento
                 formData.append("cash-payment", cash);
                 formData.append("card-payment", card);
 
@@ -262,12 +344,9 @@ CloseCon($conn);
                 .then(response => response.text())
                 .then(data => {
                     alert("Venda finalizada com sucesso!");
-                    // Limpar o carrinho do localStorage
                     localStorage.removeItem("cart");
-                    cart = [];  // Limpa o array do carrinho
-                    updateCartTable();  // Atualiza a tabela para refletir que o carrinho está vazio
-
-                    // Redireciona de volta para o formulário
+                    cart = [];
+                    updateCartTable();
                     window.location.href = "formulario_hortifruti.php";
                 })
                 .catch(error => {
@@ -279,39 +358,38 @@ CloseCon($conn);
             }
         }
 
+        // Função para imprimir o carrinho
         function printCart() {
+            const cartContent = document.querySelector(".cart").innerHTML;
+            const originalContent = document.body.innerHTML;
 
-            const cartContent = document.querySelector(".cart").innerHTML; // Captura o conteúdo da div do carrinho
-    const originalContent = document.body.innerHTML; // Salva o conteúdo original da página
-
-    // Define o conteúdo da página como apenas o carrinho a ser imprimido
-    document.body.innerHTML = `
-        <html>
-        <head>
-            <title>Impressão do Carrinho</title>
-            <style>
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px;
-                    text-align: left;
-                }
-                th {
-                    background-color: #f2f2f2;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="cart">
-                <h3>Carrinho</h3>
-                ${cartContent}
-            </div>
-        </body>
-        </html>
-    `;
+            document.body.innerHTML = `
+                <html>
+                <head>
+                    <title>Impressão do Carrinho</title>
+                    <style>
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="cart">
+                        <h3>Carrinho</h3>
+                        ${cartContent}
+                    </div>
+                </body>
+                </html>
+            `;
             window.print();
         }
 

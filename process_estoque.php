@@ -5,14 +5,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $produto = $_POST['produto'];
     $quantidade = $_POST['quantidade'];
     $preco = $_POST['preco'];
+    $preco_unitario = $_POST['preco_unitario'];
     $descricao = $_POST['descricao'];
 
     // Abrir conexão
     $conn = OpenCon();
 
     // Exemplo de inserção segura usando MySQLi
-    $stmt = $conn->prepare("INSERT INTO estoque (produto, quantidade, preco, descricao) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("sdds", $produto, $quantidade, $preco, $descricao);
+    $stmt = $conn->prepare("INSERT INTO estoque (produto, quantidade, preco, preco_unitario, descricao) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sddds", $produto, $quantidade, $preco, $preco_unitario, $descricao);
     $stmt->execute();
     $stmt->close();
 

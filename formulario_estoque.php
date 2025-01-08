@@ -73,6 +73,12 @@
                 <input type="number" id="preco" name="preco" step="0.01" min="0" required>
             </div>
 
+            <!-- Preço unitario -->
+            <div class="form-group">
+                <label for="preco_unitario">Preço Unitario (R$):</label>
+                <input type="number" id="preco_unitario" name="preco_unitario" step="0.01" min="0" required>
+            </div>
+
             <!-- Descrição -->
             <div class="form-group">
                 <label for="descricao">Descrição:</label>
