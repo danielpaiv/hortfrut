@@ -4,8 +4,21 @@
     // Abrir conexão com o banco de dados
     $conn = OpenCon();
 
+    // Data atual
+    $data_atual = date('Y-m-d');
+
+    // Inicializar variáveis de período
+    $data_inicio = isset($_GET['data_inicio']) ? $_GET['data_inicio'] : '';
+    $data_fim = isset($_GET['data_fim']) ? $_GET['data_fim'] : '';
+
+    // Condição para filtrar por data ou período
+    $where_clause = "WHERE DATE(data_venda) = '$data_atual'";
+    if (!empty($data_inicio) && !empty($data_fim)) {
+        $where_clause = "WHERE DATE(data_venda) BETWEEN '$data_inicio' AND '$data_fim'";
+    }
+
     // Calcular o total de vendas
-    $sql_total_vendas = "SELECT SUM(valor_total) AS total_vendas FROM vendas";
+    $sql_total_vendas = "SELECT SUM(valor_total) AS total_vendas FROM vendas $where_clause";
     $result_total_vendas = $conn->query($sql_total_vendas);
     $total_vendas = 0;
 
@@ -14,7 +27,7 @@
         $total_vendas = $row['total_vendas'];
     }
 
-    // Calcular o total investido no estoque
+    // Calcular o total investido no estoque (sem filtro de data, pois é um valor fixo)
     $sql_total_estoque = "SELECT SUM(preco) AS total_investido FROM estoque";
     $result_total_estoque = $conn->query($sql_total_estoque);
     $total_investido = 0;
@@ -24,24 +37,22 @@
         $total_investido = $row['total_investido'];
     }
 
-    // Calcular o total de vendas no dinheiro
-    $sql_total_dinheiro = "SELECT SUM(pagamento_dinheiro) AS total_dinheiro FROM vendas";
-    $result_total_dinheiro = $conn->query($sql_total_dinheiro);
-    $total_dinheiro = 0;
+    // Calcular o total de cada forma de pagamento
+    $sql_pagamentos = "
+        SELECT 
+            SUM(pagamento_dinheiro) AS total_dinheiro,
+            SUM(pagamento_cartao) AS total_cartao,
+            SUM(pagamento_pix) AS total_pix
+        FROM faturamento $where_clause";
+    $result_pagamentos = $conn->query($sql_pagamentos);
 
-    if ($result_total_dinheiro->num_rows > 0) {
-        $row = $result_total_dinheiro->fetch_assoc();
+    $total_dinheiro = $total_cartao = $total_pix = 0;
+
+    if ($result_pagamentos->num_rows > 0) {
+        $row = $result_pagamentos->fetch_assoc();
         $total_dinheiro = $row['total_dinheiro'];
-    }
-
-    // Calcular o total de vendas no cartão
-    $sql_total_cartao = "SELECT SUM(pagamento_cartao) AS total_cartao FROM vendas";
-    $result_total_cartao = $conn->query($sql_total_cartao);
-    $total_cartao = 0;
-
-    if ($result_total_cartao->num_rows > 0) {
-        $row = $result_total_cartao->fetch_assoc();
         $total_cartao = $row['total_cartao'];
+        $total_pix = $row['total_pix'];
     }
 
     // Calcular o lucro parcial
@@ -50,6 +61,7 @@
     // Fechar a conexão após as consultas
     CloseCon($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -61,10 +73,10 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color:rgb(0, 37, 160);
+            background-color: rgb(0, 37, 160);
         }
         .container {
-            background-color:rgb(181, 179, 199);
+            background-color: rgb(181, 179, 199);
             max-width: 800px;
             margin: auto;
             padding: 20px;
@@ -97,17 +109,27 @@
         button:hover {
             background-color: #218838;
         }
-        a{
+        a {
             text-decoration: none;
+            color: #fff;
         }
     </style>
 </head>
 <body>
     <button>
-    <a href="http://localhost/hortifruti/formulario_hortifruti.php">Voltar</a>
+        <a href="http://localhost/hortifruti/formulario_hortifruti.php">Voltar</a>
     </button>
     <div class="container">
         <h2>Relatório Financeiro - Hortifruti</h2>
+
+        <!-- Formulário para Filtro de Período -->
+        <form method="GET" action="">
+            <label for="data_inicio">Data Início:</label>
+            <input type="date" name="data_inicio" id="data_inicio" value="<?php echo $data_inicio; ?>">
+            <label for="data_fim">Data Fim:</label>
+            <input type="date" name="data_fim" id="data_fim" value="<?php echo $data_fim; ?>">
+            <button type="submit">Filtrar</button>
+        </form>
 
         <h3>Resumo Financeiro</h3>
         <table>
@@ -116,8 +138,6 @@
                     <th>Total de Vendas (R$)</th>
                     <th>Total Investido (R$)</th>
                     <th>Lucro Parcial (R$)</th>
-                    <th>Total Vendas em Dinheiro (R$)</th>
-                    <th>Total Vendas no Cartão (R$)</th>
                 </tr>
             </thead>
             <tbody>
@@ -125,8 +145,26 @@
                     <td>R$ <?php echo number_format($total_vendas, 2, ',', '.'); ?></td>
                     <td>R$ <?php echo number_format($total_investido, 2, ',', '.'); ?></td>
                     <td>R$ <?php echo number_format($lucro_parcial, 2, ',', '.'); ?></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Formas de Pagamento</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Dinheiro (R$)</th>
+                    <th>Cartão (R$)</th>
+                    <th>PIX (R$)</th>
+                    <th>Subtotal (R$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
                     <td>R$ <?php echo number_format($total_dinheiro, 2, ',', '.'); ?></td>
                     <td>R$ <?php echo number_format($total_cartao, 2, ',', '.'); ?></td>
+                    <td>R$ <?php echo number_format($total_pix, 2, ',', '.'); ?></td>
+                    <td>R$ <?php echo number_format($total_dinheiro + $total_cartao + $total_pix, 2, ',', '.'); ?></td>
                 </tr>
             </tbody>
         </table>

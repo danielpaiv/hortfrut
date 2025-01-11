@@ -4,8 +4,21 @@
     // Abrir conexão com o banco de dados
     $conn = OpenCon();
 
+    // Obter a data atual
+    $data_atual = date('Y-m-d');
+
+    // Variáveis para filtros
+    $data_inicio = isset($_GET['data_inicio']) ? $_GET['data_inicio'] : '';
+    $data_fim = isset($_GET['data_fim']) ? $_GET['data_fim'] : '';
+
+    // Adicionar filtro de período às consultas, se as datas forem fornecidas
+    $filtro_data = '';
+    if (!empty($data_inicio) && !empty($data_fim)) {
+        $filtro_data = " WHERE data_venda BETWEEN '$data_inicio' AND '$data_fim'";
+    }
+
     // Consultar o total de vendas
-    $sql_total_vendas = "SELECT SUM(valor_total) AS total_vendas FROM vendas";
+    $sql_total_vendas = "SELECT SUM(valor_total) AS total_vendas FROM vendas" . $filtro_data;
     $result_total_vendas = $conn->query($sql_total_vendas);
     $total_vendas = 0;
 
@@ -15,7 +28,8 @@
     }
 
     // Consultar o total de itens vendidos
-    $sql_total_itens = "SELECT produto, SUM(quantidade) AS total_quantidade, SUM(valor_total) AS total_valor FROM vendas GROUP BY produto";
+    $sql_total_itens = "SELECT produto, SUM(quantidade) AS total_quantidade, SUM(valor_total) AS total_valor 
+    FROM vendas " . $filtro_data . " GROUP BY produto";
     $result_total_itens = $conn->query($sql_total_itens);
 
     // Consultar o estoque para mostrar o restante de itens
@@ -28,7 +42,7 @@
         FROM 
             estoque e
         LEFT JOIN 
-            vendas v ON e.produto = v.produto
+            (SELECT * FROM vendas " . $filtro_data . ") v ON e.produto = v.produto
         GROUP BY 
             e.produto";
     $result_estoque = $conn->query($sql_estoque);
@@ -102,6 +116,17 @@
     </button>
     <div class="container">
         <h2>Gestão de Vendas - Hortifruti</h2>
+
+        <!-- Formulário para filtros -->
+        <form method="GET" action="">
+            <label for="data_inicio">Data Início:</label>
+            <input type="date" id="data_inicio" name="data_inicio" value="<?php echo $data_inicio; ?>">
+            
+            <label for="data_fim">Data Fim:</label>
+            <input type="date" id="data_fim" name="data_fim" value="<?php echo $data_fim; ?>">
+
+            <button type="submit">Filtrar</button>
+        </form>
 
         <h3>Total de Vendas: R$ <?php echo number_format($total_vendas, 2, ',', '.'); ?></h3>
 

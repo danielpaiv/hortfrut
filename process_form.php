@@ -6,6 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $produtos = $_POST['product'];
     $pagamento_dinheiro = $_POST['cash-payment'];
     $pagamento_cartao = $_POST['card-payment'];
+    $pagamento_pix = $_POST['pix-payment'];
 
     // Abrir conexão com o banco de dados
     $conn = OpenCon();
@@ -18,8 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $valor_total = $produto['totalPrice'];
 
         // Exemplo de inserção segura usando MySQLi
-        $stmt = $conn->prepare("INSERT INTO vendas (produto, quantidade, preco_unitario, valor_total, pagamento_dinheiro, pagamento_cartao) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sddddd", $produto_nome, $quantidade, $preco_unitario, $valor_total, $pagamento_dinheiro, $pagamento_cartao);
+        $stmt = $conn->prepare("INSERT INTO vendas (produto, quantidade, preco_unitario, valor_total, pagamento_dinheiro, pagamento_cartao, pagamento_pix) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sdddddd", $produto_nome, $quantidade, $preco_unitario, $valor_total, $pagamento_dinheiro, $pagamento_cartao, $pagamento_pix);
         $stmt->execute();
         $stmt->close();
     }

@@ -31,7 +31,7 @@ CloseCon($conn);
             position: fixed;
             top: 20%;
             background-color:rgb(181, 179, 199);
-            max-width: 800px;
+            max-width: 400px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -100,10 +100,11 @@ CloseCon($conn);
 </head>
 <body>
     <div class="buttons">
-        <button><a href="formulario_estoque.php" style="color: white; text-decoration: none;">Estoque</a></button>
+        <button><a href="formulario_estoque.php" style="color: white; text-decoration: none;">Cadastrar Produto</a></button>
         <button><a href="gestao.php" style="color: white; text-decoration: none;">Gestão</a></button>
         <button><a href="financeiro.php" style="color: white; text-decoration: none;">Financeiro</a></button>
         <button><a href="vendas.php" style="color: white; text-decoration: none;">Vendas</a></button>
+        <button onclick="setFocus()"><a href="estoque.php" style="color: white; text-decoration: none;">Estoque</a></button>
     </div>
 
     <div class="container">
@@ -174,57 +175,118 @@ CloseCon($conn);
         </div>
 
         <div class="form-group">
+            <label for="pix-payment">PIX (R$):</label>
+            <input type="number" id="pix-payment" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
             <button id="finalize-sale">Finalizar Venda</button>
             <button id="print-cart">Imprimir Carrinho</button>
         </div>
     </div>
 
     <script>
+
+        document.addEventListener("keydown", function(event) {
+            // Verifica se a tecla pressionada foi aspas simples ou aspas duplas
+            if (event.key === 'ArrowRight' || event.key === "'") {
+                window.location.href = "estoque.php"; // Redireciona para o arquivo estoque.php
+            }
+
+            
+        });
+
+        document.addEventListener("keydown", function(event) {
+    if (event.key === " ") { // Verifica se a tecla pressionada é a barra de espaço
+        const cartFormGroups = document.querySelectorAll(".cart .form-group input, .cart .form-group button"); // Seleciona inputs e botões no form-group do carrinho
+        const elementoAtivo = document.activeElement; // Elemento atualmente focado
+        let proximoIndice = 0; // Índice do próximo elemento a ser focado
+
+        // Encontra o índice do elemento atualmente ativo
+        for (let i = 0; i < cartFormGroups.length; i++) {
+            if (cartFormGroups[i] === elementoAtivo) {
+                proximoIndice = (i + 1) % cartFormGroups.length; // Avança para o próximo ou retorna ao primeiro
+                break;
+            }
+        }
+
+        // Foca no próximo elemento do grupo de formulário do carrinho
+        cartFormGroups[proximoIndice].focus();
+        event.preventDefault(); // Evita comportamento padrão da tecla espaço
+    }
+});
+
+
+        function setFocus() {
+            // Armazena um valor no localStorage que indica que o foco deve ser colocado no campo filtroNome
+            localStorage.setItem("focusOnFiltroNome", "true");
+        }
+
+        window.onload = function() {
+            // Recuperar o id do produto do localStorage
+            const productId = localStorage.getItem('product-id');
+            
+            if (productId) {
+                // Preencher o campo com o id do produto
+                document.getElementById('product-id').value = productId;
+            }
+            // Foca no campo ID do produto
+            document.getElementById('product-id').focus();
+        }
+
         const cartTableBody = document.querySelector("#cart-table tbody");
         const addToCartButton = document.getElementById("add-to-cart");
         const finalizeSaleButton = document.getElementById("finalize-sale");
         const printCartButton = document.getElementById("print-cart");
         const cashPaymentInput = document.getElementById("cash-payment");
         const cardPaymentInput = document.getElementById("card-payment");
+        const pixPaymentInput = document.getElementById("pix-payment");
         const productIdInput = document.getElementById("product-id");
+        const quantityInput = document.getElementById("quantity");
         const productInput = document.getElementById("product");
         const unitPriceInput = document.getElementById("unit-price");
 
         productIdInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") { // Verifica se a tecla pressionada foi Enter
-        event.preventDefault(); // Evita o comportamento padrão (submissão de formulário ou avanço para o próximo campo)
-        
-        // Verifica se o campo ID do produto está vazio
-        if (productIdInput.value.trim() === "") {
-           
-            productIdInput.focus(); // Foca no campo de ID novamente
-        } else {
-            document.getElementById("quantity").focus(); // Foca no campo de quantidade se o campo ID não estiver vazio
-        }
-    }
-});
-
-productIdInput.addEventListener("blur", function () {
-    const productId = productIdInput.value;
-    if (productId) {
-        fetch(`get_product_by_id.php?id=${productId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.product) {
-                    productInput.value = data.product;
-                    document.getElementById("unit-price").value = data.unit_price || ""; // Preenche o preço unitário
+            if (event.key === "Enter") { // Verifica se a tecla pressionada foi Enter
+                event.preventDefault(); // Evita o comportamento padrão (submissão de formulário ou avanço para o próximo campo)
+                
+                // Verifica se o campo ID do produto está vazio
+                if (productIdInput.value.trim() === "") {
+                    productIdInput.focus(); // Foca no campo de ID novamente
                 } else {
-                    alert(data.error || "Produto não encontrado.");
-                    productInput.value = "";
-                    document.getElementById("unit-price").value = ""; // Limpa o preço unitário
+                    quantityInput.focus(); // Foca no campo de quantidade
+                    quantityInput.addEventListener("blur", function() { // Quando o foco sair do campo de quantidade
+                        if (quantityInput.value.trim() === "") { // Verifica se o campo de quantidade está vazio
+                            quantityInput.focus(); // Foca novamente no campo de quantidade até ser preenchido
+                        }
+                    });
                 }
-            })
-            .catch(error => {
-                alert("Erro ao buscar o produto.");
-                console.error(error);
-            });
-    }
-});
+            }
+        });
+
+        
+
+        productIdInput.addEventListener("blur", function () {
+            const productId = productIdInput.value;
+            if (productId) {
+                fetch(`get_product_by_id.php?id=${productId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.product) {
+                            productInput.value = data.product;
+                            document.getElementById("unit-price").value = data.unit_price || ""; // Preenche o preço unitário
+                        } else {
+                            alert(data.error || "Produto não encontrado.");
+                            productInput.value = "";
+                            document.getElementById("unit-price").value = ""; // Limpa o preço unitário
+                        }
+                    })
+                    .catch(error => {
+                        alert("Erro ao buscar o produto.");
+                        console.error(error);
+                    });
+            }
+        });
 
         // Adicionar um evento para mover o foco para o botão "Adicionar ao Carrinho" após preencher a quantidade
         document.getElementById("quantity").addEventListener("keydown", function(event) {
@@ -324,8 +386,9 @@ productIdInput.addEventListener("blur", function () {
             const total = cart.reduce((sum, item) => sum + parseFloat(item.totalPrice), 0);
             const cash = parseFloat(cashPaymentInput.value) || 0;
             const card = parseFloat(cardPaymentInput.value) || 0;
+            const pix = parseFloat(pixPaymentInput.value) || 0;
 
-            if (cash + card === total) {
+            if (cash + card + pix === total) {
                 const formData = new FormData();
                 cart.forEach((item, index) => {
                     formData.append(`product[${index}][name]`, item.product);
@@ -336,8 +399,13 @@ productIdInput.addEventListener("blur", function () {
 
                 formData.append("cash-payment", cash);
                 formData.append("card-payment", card);
+                formData.append("pix-payment", pix);
 
                 fetch("process_form.php", {
+                    method: "POST",
+                    body: formData,
+                })
+                fetch("salvar_faturamento.php", {
                     method: "POST",
                     body: formData,
                 })
