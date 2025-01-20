@@ -1,12 +1,31 @@
 <?php
 include 'db_connection.php';
 
+
+
+
 // Abrir conexão com o banco de dados
 $conn = OpenCon();
 
 // Consultar os produtos no estoque
 $sql_estoque = "SELECT id, produto FROM estoque";
 $result_estoque = $conn->query($sql_estoque);
+
+
+
+
+//esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+
+session_start();
+include_once('db_connection.php');
+
+// Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+    unset($_SESSION['nome']);
+    unset($_SESSION['senha']);
+    header('Location: index.php');
+    exit();  // Importante adicionar o exit() após o redirecionamento
+}
 
 // Fechar a conexão após a consulta
 CloseCon($conn);
@@ -28,6 +47,7 @@ CloseCon($conn);
             
         }
         .container {
+            font-size:120%;
             position: fixed;
             top: 20%;
             background-color:rgb(181, 179, 199);
@@ -46,6 +66,10 @@ CloseCon($conn);
         }
         .form-group {
             margin-bottom: 15px;
+            
+        }
+        #quantity{
+            font-size:150%;
         }
         .form-group label {
             display: block;
@@ -79,6 +103,27 @@ CloseCon($conn);
            /* width: 100%;
             margin-left:20%;*/
         }
+        #product-id{
+            font-size:120%;
+        }
+        #product{
+            font-size:100%;
+        }
+        #unit-price{
+            font-size:120%;
+        }
+        tbody{
+            font-size:120%;
+        }
+        #cash-payment{
+            font-size:120%;
+        }
+        #card-payment{
+            font-size:120%;
+        }
+        #pix-payment{
+            font-size:120%;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -100,11 +145,12 @@ CloseCon($conn);
 </head>
 <body>
     <div class="buttons">
-        <button><a href="formulario_estoque.php" style="color: white; text-decoration: none;">Cadastrar Produto</a></button>
-        <button><a href="gestao.php" style="color: white; text-decoration: none;">Gestão</a></button>
-        <button><a href="financeiro.php" style="color: white; text-decoration: none;">Financeiro</a></button>
+        <!--<button><a href="formulario_estoque.php" style="color: white; text-decoration: none;">Cadastrar Produto</a></button>-->
+        <button><a href="sair.php" style="color: white; text-decoration: none;">Sair</a></button>
+        <!--<button><a href="financeiro.php" style="color: white; text-decoration: none;">Financeiro</a></button>-->
         <button><a href="vendas.php" style="color: white; text-decoration: none;">Vendas</a></button>
         <button onclick="setFocus()"><a href="estoque.php" style="color: white; text-decoration: none;">Estoque</a></button>
+        <!--<button onclick="setFocus()"><a href="editarEstoque.php" style="color: white; text-decoration: none;">Atualizar estoque</a></button>-->
     </div>
 
     <div class="container">
@@ -119,7 +165,7 @@ CloseCon($conn);
             <!-- Campo de Nome do Produto -->
             <div class="form-group">
                 <label for="product">Produto:</label>
-                <select id="product" name="product" required>
+                <select id="product" name="product" required >
                     <option value="">Selecione o produto</option>
                     <?php
                     if ($result_estoque->num_rows > 0) {
@@ -140,7 +186,7 @@ CloseCon($conn);
 
             <div class="form-group">
                 <label for="unit-price">Preço Unitário (R$):</label>
-                <input type="number" id="unit-price" name="unit-price" step="0.01" min="0" required>
+                <input type="number" id="unit-price" name="unit-price" step="0.01" min="0" required readonly>
             </div>
 
             <div class="form-group">
@@ -164,18 +210,28 @@ CloseCon($conn);
             <tbody></tbody>
         </table>
 
+        <!-- Forma de pagamento -->
         <div class="form-group">
-            <label for="cash-payment">Dinheiro (R$):</label>
+            <label>
+                <input type="radio" name="payment-method" value="cash">
+                Dinheiro (R$):
+            </label>
             <input type="number" id="cash-payment" step="0.01" min="0">
         </div>
 
         <div class="form-group">
-            <label for="card-payment">Cartão (R$):</label>
+            <label>
+                <input type="radio" name="payment-method" value="card">
+                Cartão (R$):
+            </label>
             <input type="number" id="card-payment" step="0.01" min="0">
         </div>
 
         <div class="form-group">
-            <label for="pix-payment">PIX (R$):</label>
+            <label>
+                <input type="radio" name="payment-method" value="pix">
+                PIX (R$):
+            </label>
             <input type="number" id="pix-payment" step="0.01" min="0">
         </div>
 
@@ -184,6 +240,148 @@ CloseCon($conn);
             <button id="print-cart">Imprimir Carrinho</button>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const finalizeButton = document.getElementById("finalize-sale");
+
+            // Função para simular o clique no botão "Finalizar Venda" quando pressionar f
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "f") {
+                    finalizeButton.click(); // Simula o clique no botão
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const printButton = document.getElementById("print-cart");
+
+            // Função para simular o clique no botão "Imprimir" quando pressionar i
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "i") {
+                    printButton.click(); // Simula o clique no botão
+                }
+            });
+        });
+
+    </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const cashInput = document.getElementById("cash-payment");
+            const cardInput = document.getElementById("card-payment");
+            const pixInput = document.getElementById("pix-payment");
+            const radios = document.querySelectorAll("input[name='payment-method']");
+
+            // Função para obter o valor total do carrinho
+            const getTotalCartValue = () => {
+                const tableBody = document.querySelector("#cart-table tbody");
+                let total = 0;
+
+                tableBody.querySelectorAll("tr").forEach(row => {
+                    const totalCell = row.querySelector("td:nth-child(4)"); // 4ª coluna: Valor Total
+                    if (totalCell) {
+                        total += parseFloat(totalCell.textContent.replace(",", ".") || "0");
+                    }
+                });
+
+                return total.toFixed(2); // Retorna o total formatado
+            };
+
+            // Função para calcular e preencher os valores restantes
+            const updatePaymentFields = (changedInput) => {
+                const total = parseFloat(getTotalCartValue());
+                const cashValue = parseFloat(cashInput.value) || 0;
+                const cardValue = parseFloat(cardInput.value) || 0;
+                const pixValue = parseFloat(pixInput.value) || 0;
+
+                const remaining = total - (cashValue + cardValue + pixValue);
+
+                radios.forEach(radio => {
+                    if (radio.checked) {
+                        if (radio.value === "cash" && changedInput !== cashInput) {
+                            cashInput.value = Math.max(remaining, 0).toFixed(2);
+                        } else if (radio.value === "card" && changedInput !== cardInput) {
+                            cardInput.value = Math.max(remaining, 0).toFixed(2);
+                        } else if (radio.value === "pix" && changedInput !== pixInput) {
+                            pixInput.value = Math.max(remaining, 0).toFixed(2);
+                        }
+                    }
+                });
+            };
+
+            // Função para configurar o comportamento da tecla Enter
+            const setupEnterKeyForRadio = (inputElement, radioValue) => {
+                inputElement.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") {
+                        const targetRadio = Array.from(radios).find(radio => radio.value === radioValue);
+                        if (targetRadio) {
+                            targetRadio.checked = true; // Seleciona o botão de rádio correspondente
+                            updatePaymentFields(inputElement); // Atualiza o campo selecionado com o valor restante
+                        }
+                    }
+                });
+            };
+
+            // Adiciona eventos aos campos de entrada para a tecla Enter
+            setupEnterKeyForRadio(cashInput, "cash");
+            setupEnterKeyForRadio(cardInput, "card");
+            setupEnterKeyForRadio(pixInput, "pix");
+
+            // Adiciona eventos de input para atualizar os valores dinamicamente
+            cashInput.addEventListener("input", () => updatePaymentFields(cashInput));
+            cardInput.addEventListener("input", () => updatePaymentFields(cardInput));
+            pixInput.addEventListener("input", () => updatePaymentFields(pixInput));
+
+            // Adiciona evento de mudança nos botões de rádio
+            radios.forEach(radio => {
+                radio.addEventListener("change", () => {
+                    // Atualiza os campos de pagamento com base no rádio selecionado
+                    updatePaymentFields(null);
+                });
+            });
+
+            // Adiciona a funcionalidade de atalhos de teclado
+            document.addEventListener("keydown", function(event) {
+                const total = parseFloat(getTotalCartValue());
+
+                if (event.key === "d" || event.key === "D") { // Tecla D para Dinheiro
+                    const targetRadio = Array.from(radios).find(radio => radio.value === "cash");
+                    if (targetRadio) {
+                        targetRadio.checked = true;
+                        cashInput.value = total.toFixed(2); // Preenche com o valor total do carrinho
+                        updatePaymentFields(cashInput);
+                    }
+                } else if (event.key === "c" || event.key === "C") { // Tecla C para Cartão
+                    const targetRadio = Array.from(radios).find(radio => radio.value === "card");
+                    if (targetRadio) {
+                        targetRadio.checked = true;
+                        cardInput.value = total.toFixed(2); // Preenche com o valor total do carrinho
+                        updatePaymentFields(cardInput);
+                    }
+                } else if (event.key === "p" || event.key === "P") { // Tecla P para PIX
+                    const targetRadio = Array.from(radios).find(radio => radio.value === "pix");
+                    if (targetRadio) {
+                        targetRadio.checked = true;
+                        pixInput.value = total.toFixed(2); // Preenche com o valor total do carrinho
+                        updatePaymentFields(pixInput);
+                    }
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
 
     <script>
 
@@ -197,24 +395,24 @@ CloseCon($conn);
         });
 
         document.addEventListener("keydown", function(event) {
-    if (event.key === " ") { // Verifica se a tecla pressionada é a barra de espaço
-        const cartFormGroups = document.querySelectorAll(".cart .form-group input, .cart .form-group button"); // Seleciona inputs e botões no form-group do carrinho
-        const elementoAtivo = document.activeElement; // Elemento atualmente focado
-        let proximoIndice = 0; // Índice do próximo elemento a ser focado
+            if (event.key === " ") { // Verifica se a tecla pressionada é a barra de espaço
+                const cartFormGroups = document.querySelectorAll(".cart .form-group input, .cart .form-group button"); // Seleciona inputs e botões no form-group do carrinho
+                const elementoAtivo = document.activeElement; // Elemento atualmente focado
+                let proximoIndice = 0; // Índice do próximo elemento a ser focado
 
-        // Encontra o índice do elemento atualmente ativo
-        for (let i = 0; i < cartFormGroups.length; i++) {
-            if (cartFormGroups[i] === elementoAtivo) {
-                proximoIndice = (i + 1) % cartFormGroups.length; // Avança para o próximo ou retorna ao primeiro
-                break;
+                // Encontra o índice do elemento atualmente ativo
+                for (let i = 0; i < cartFormGroups.length; i++) {
+                    if (cartFormGroups[i] === elementoAtivo) {
+                        proximoIndice = (i + 1) % cartFormGroups.length; // Avança para o próximo ou retorna ao primeiro
+                        break;
+                    }
+                }
+
+                // Foca no próximo elemento do grupo de formulário do carrinho
+                cartFormGroups[proximoIndice].focus();
+                event.preventDefault(); // Evita comportamento padrão da tecla espaço
             }
-        }
-
-        // Foca no próximo elemento do grupo de formulário do carrinho
-        cartFormGroups[proximoIndice].focus();
-        event.preventDefault(); // Evita comportamento padrão da tecla espaço
-    }
-});
+        });
 
 
         function setFocus() {
@@ -388,7 +586,7 @@ CloseCon($conn);
             const card = parseFloat(cardPaymentInput.value) || 0;
             const pix = parseFloat(pixPaymentInput.value) || 0;
 
-            if (cash + card + pix === total) {
+            if (Math.abs((cash + card + pix) - total) < 0.01) {
                 const formData = new FormData();
                 cart.forEach((item, index) => {
                     formData.append(`product[${index}][name]`, item.product);

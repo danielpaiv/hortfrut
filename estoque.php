@@ -8,6 +8,18 @@
     $sql_estoque = "SELECT * FROM estoque";
     $result_estoque = $conn->query($sql_estoque);
 
+    //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+
+    session_start();
+    include_once('db_connection.php');
+
+    // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+    if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+        unset($_SESSION['nome']);
+        unset($_SESSION['senha']);
+        header('Location: index.php');
+        exit();  // Importante adicionar o exit() após o redirecionamento
+    }
     // Fechar a conexão após as consultas
     CloseCon($conn);
 ?>
@@ -26,7 +38,7 @@
         }
         .container {
             background-color: rgb(181, 179, 199);
-            max-width: 800px;
+            max-width: 850px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -41,8 +53,9 @@
             border: 1px solid #ddd;
         }
         th, td {
-            padding: 10px;
+            padding: 30px;
             text-align: left;
+            font-size:150%;
         }
         h2 {
             text-align: center;
@@ -70,9 +83,10 @@
         }
 
         /* Cor de fundo da linha em foco */
-tr.focused {
-    background-color: #f0f0f0; /* Cor clara, você pode personalizar */
-}
+        tr.focused {
+            background-color: #f0f0f0; /* Cor clara, você pode personalizar */
+        }
+       
 
     </style>
 </head>
@@ -100,20 +114,24 @@ tr.focused {
             };
 
             document.addEventListener("keydown", function(event) {
-                if (event.key === "ArrowDown") { // Verifica se a tecla pressionada foi a seta para baixo
-                    const botoesEnviar = Array.from(document.querySelectorAll("table#estoqueTabela button"))
-                        .filter(btn => btn.offsetParent !== null); // Seleciona apenas os botões visíveis
+                if (event.key === "ArrowDown" || event.key === "ArrowUp") { 
+                const botoesEnviar = Array.from(document.querySelectorAll("table#estoqueTabela button"))
+                    .filter(btn => btn.offsetParent !== null); // Seleciona apenas os botões visíveis
 
-                    const elementoAtivo = document.activeElement; // Elemento atualmente focado
-                    let proximoIndice = 0; // Índice do próximo botão a ser focado
+                const elementoAtivo = document.activeElement; // Elemento atualmente focado
+                let proximoIndice = 0; // Índice do próximo botão a ser focado
 
-                    // Encontra o índice do botão atualmente ativo
-                    for (let i = 0; i < botoesEnviar.length; i++) {
-                        if (botoesEnviar[i] === elementoAtivo) {
+                // Encontra o índice do botão atualmente ativo
+                for (let i = 0; i < botoesEnviar.length; i++) {
+                    if (botoesEnviar[i] === elementoAtivo) {
+                        if (event.key === "ArrowDown") {
                             proximoIndice = (i + 1) % botoesEnviar.length; // Avança para o próximo ou retorna ao primeiro
-                            break;
+                        } else if (event.key === "ArrowUp") {
+                            proximoIndice = (i - 1 + botoesEnviar.length) % botoesEnviar.length; // Volta para o anterior ou vai para o último
                         }
+                        break;
                     }
+                }
 
                     // Foca no próximo botão
                     if (botoesEnviar.length > 0) {
@@ -140,6 +158,13 @@ tr.focused {
                 
             });
 
+             // Função para capturar o pressionamento da tecla ESC
+             document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowLeft') {  // Se a tecla pressionada for 'ESC'
+                    window.location.href = 'formulario_hortifruti.php';  // Redireciona para o formulário
+                }
+            });
+
             function mudarCorDaLinha(linha) {
                 // Remove a classe "focused" de todas as linhas
                 document.querySelectorAll("table#estoqueTabela tr").forEach(function(row) {
@@ -149,13 +174,6 @@ tr.focused {
                 // Adiciona a classe "focused" à linha
                 linha.classList.add("focused");
             }
-
-
-            
-
-
-
-
 
         </script>
 
@@ -169,7 +187,7 @@ tr.focused {
                     <th>ID</th>
                     <th>Produto</th>
                     <th>Quantidade</th>
-                    <th>Preço</th>
+                    <!--<th>Preço</th>-->
                     <th>Preço unitário</th>
                     <th>Ações</th>
                 </tr>
@@ -182,7 +200,7 @@ tr.focused {
                             echo "<td>" . $row["id"] . "</td>";
                             echo "<td>" . $row["produto"] . "</td>";
                             echo "<td>" . $row["quantidade"] . "</td>";
-                            echo "<td>R$ " . number_format($row["preco"], 2, ',', '.') . "</td>";
+                            //echo "<td>R$ " . number_format($row["preco"], 2, ',', '.') . "</td>";
                             echo "<td>R$ " . number_format($row["preco_unitario"], 2, ',', '.') . "</td>";
                             echo "<td><button onclick=\"enviarProduto(" . $row['id'] . ")\">Enviar</button></td>";
                             echo "</tr>";

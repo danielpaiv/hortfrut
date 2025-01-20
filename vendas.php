@@ -1,25 +1,60 @@
 <?php
-include 'db_connection.php';
+    include 'db_connection.php';
 
-// Abrir conexão com o banco de dados
-$conn = OpenCon();
+    // Abrir conexão com o banco de dados
+    $conn = OpenCon();
 
-// Consultar todos os itens vendidos em ordem decrescente pela data da venda
-$sql_vendas = "SELECT * FROM vendas ORDER BY data_venda DESC";
-$result_vendas = $conn->query($sql_vendas);
+    // Definir o fuso horário para Brasília
+    date_default_timezone_set('America/Sao_Paulo');
 
-// Buscar a data e hora da última venda (caso exista)
-$ultima_data_venda = null;
-if ($result_vendas->num_rows > 0) {
-    $row = $result_vendas->fetch_assoc();
-    $ultima_data_venda = $row['data_venda'];
-    // Reposicionar o ponteiro para o início do resultado
-    $result_vendas->data_seek(0);
-}
+    // Obter a data atual
+    $data_atual = date('Y-m-d');
 
-// Fechar a conexão após a consulta
-CloseCon($conn);
+    // Consultar as vendas realizadas no dia atual
+    $sql_vendas = "SELECT * FROM vendas WHERE DATE(data_venda) = ? ORDER BY data_venda DESC";
+    $stmt = $conn->prepare($sql_vendas);
+    $stmt->bind_param('s', $data_atual);
+    $stmt->execute();
+    $result_vendas = $stmt->get_result();
+
+    // Buscar a data e hora da última venda (caso exista)
+    $ultima_data_venda = null;
+    if ($result_vendas->num_rows > 0) {
+        $row = $result_vendas->fetch_assoc();
+        $ultima_data_venda = $row['data_venda'];
+        // Reposicionar o ponteiro para o início do resultado
+        $result_vendas->data_seek(0);
+    }
+
+    // Obter a data atual ou a data fornecida pelo usuário
+    $data_atual = date('Y-m-d');
+    $data_filtro = isset($_GET['filter-date']) ? $_GET['filter-date'] : $data_atual;
+
+    // Consultar as vendas realizadas na data selecionada
+    $sql_vendas = "SELECT * FROM vendas WHERE DATE(data_venda) = ? ORDER BY data_venda DESC";
+    $stmt = $conn->prepare($sql_vendas);
+    $stmt->bind_param('s', $data_filtro);
+    $stmt->execute();
+    $result_vendas = $stmt->get_result();
+
+     //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+
+     session_start();
+     include_once('db_connection.php');
+ 
+     // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+     if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+         unset($_SESSION['nome']);
+         unset($_SESSION['senha']);
+         header('Location: index.php');
+         exit();  // Importante adicionar o exit() após o redirecionamento
+     }
+     
+    // Fechar a conexão após a consulta
+    $stmt->close();
+    CloseCon($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -75,11 +110,21 @@ CloseCon($conn);
     <div class="container">
         <h2>Itens Vendidos - Hortifruti</h2>
 
-        <!-- Botões de Ação -->
-        <div>
-            <button onclick="filterLastSale()">Filtrar Última Venda</button>
-            <button onclick="printSelected()">Imprimir Selecionados</button>
-        </div>
+            <!-- Formulário para selecionar a data -->
+            <form method="GET" action="">
+                <label for="filter-date">Selecione uma data:</label>
+                <input type="date" id="filter-date" name="filter-date" value="<?php echo htmlspecialchars($data_filtro); ?>" required>
+                <button type="submit">Filtrar</button>
+            </form>
+            <br>
+            <!-- Botões de Ação -->
+            <div>
+                <button onclick="filterLastSale()">Filtrar Última Venda</button>
+                <button onclick="printSelected()">Imprimir Selecionados</button>
+                <!-- Botão para gerar o relatório -->
+                <button><a href="relatorio.php" class="btn-relatorio">Gerar Relatório</a></button>
+            </div>
+            <br>
 
         <!-- Tabela de Vendas -->
         <form id="sales-form">
@@ -118,6 +163,15 @@ CloseCon($conn);
     </div>
 
     <script>
+
+         // Função para capturar o pressionamento da tecla ESC
+         document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowLeft') {  // Se a tecla pressionada for 'ESC'
+                    window.location.href = 'formulario_hortifruti.php';  // Redireciona para o formulário
+                }
+            });
+
+            
         // Função para filtrar os itens da última venda
         function filterLastSale() {
             const lastSaleDate = '<?php echo $ultima_data_venda; ?>';

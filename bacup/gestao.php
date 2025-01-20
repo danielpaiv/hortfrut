@@ -163,7 +163,11 @@
             <!-- Tabela de Estoque Atual -->
             <div class="table-wrapper">
                 <h3>Estoque Atual</h3>
-                <table>
+
+                <label for="filtroNome">Filtrar por nome:</label>
+                <input type="text" id="filtroNome" onkeyup="filtrarPorNome()">
+
+                <table id="estoqueAtual">
                     <thead>
                         <tr>
                             <th>Produto</th>
@@ -192,5 +196,33 @@
             </div>
         </div>
     </div>
+    <script>
+         // Função para capturar o pressionamento da tecla ESC
+         document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowLeft') {  // Se a tecla pressionada for 'ESC'
+                    window.location.href = 'formulario_hortifruti.php';  // Redireciona para o formulário
+                }
+            });
+
+
+            function filtrarPorNome() {
+            const input = document.getElementById('filtroNome');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('estoqueAtual');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td')[0]; // coluna "Nome"
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>
