@@ -2,6 +2,14 @@
 include 'db_connection.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Verificar se o ID do usuário foi enviado
+    if (!isset($_POST['user-id']) || empty($_POST['user-id'])) {
+        echo "Erro: ID do usuário não fornecido.";
+        exit;
+    }
+
+    $user_id = $_POST['user-id']; // Recebe o ID do usuário
+
     // Obter os dados dos produtos enviados
     $produtos = $_POST['product'];
     $pagamento_dinheiro = $_POST['cash-payment'];
@@ -19,8 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $valor_total = $produto['totalPrice'];
 
         // Exemplo de inserção segura usando MySQLi
-        $stmt = $conn->prepare("INSERT INTO vendas (produto, quantidade, preco_unitario, valor_total, pagamento_dinheiro, pagamento_cartao, pagamento_pix) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sdddddd", $produto_nome, $quantidade, $preco_unitario, $valor_total, $pagamento_dinheiro, $pagamento_cartao, $pagamento_pix);
+        $stmt = $conn->prepare("INSERT INTO vendas (produto, quantidade, preco_unitario, valor_total, pagamento_dinheiro, pagamento_cartao, pagamento_pix, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sddddddi", $produto_nome, $quantidade, $preco_unitario, $valor_total, $pagamento_dinheiro, $pagamento_cartao, $pagamento_pix, $user_id);
         $stmt->execute();
         $stmt->close();
     }

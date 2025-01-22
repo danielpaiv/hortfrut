@@ -1,4 +1,7 @@
 <?php
+
+    session_start();
+
     include 'db_connection.php';
 
     // Abrir conexão com o banco de dados
@@ -26,6 +29,15 @@
         $filtro_data
         ORDER BY data_perda DESC";
     $result_perdas = $conn->query($sql_perdas);
+
+    //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+    // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+    if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+        unset($_SESSION['nome']);
+        unset($_SESSION['senha']);
+        header('Location: index.php');
+        exit();  // Importante adicionar o exit() após o redirecionamento
+    }
 
     // Fechar a conexão após a consulta
     CloseCon($conn);
@@ -134,6 +146,7 @@
     
     <nav id="menu">
         <a href="#" onclick="facharMenu()">&times; Fechar</a>
+        <a href="Painel.php">Painel</a>
         <a href="perdas.php">Registrar Perdas</a>
         <a href="financeiro.php">financeiro</a>
         <a href="editarEstoque.php">Editar estoque</a>
@@ -203,6 +216,12 @@
             document.getElementById('menu').style. height = '0%'
             document.getElementById('conteudo').style.marginLeft = '0%';
         }
+        // Função para capturar o pressionamento da tecla seta para esquerda
+        document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowLeft') {  // Se a tecla pressionada for 'ESC'
+                    window.location.href = 'painel.php';  // Redireciona para o formulário
+                }
+            });
         
     </script>
 

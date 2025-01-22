@@ -1,4 +1,7 @@
 <?php
+
+    session_start();
+    
     include 'db_connection.php';
 
     // Abrir conexão com o banco de dados
@@ -26,6 +29,15 @@
                                 FROM faturamento WHERE data_venda BETWEEN '$data_inicio' AND '$data_fim'";
     $result_financeiro = $conn->query($sql_financeiro);
 
+
+    //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+    // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+    if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+        unset($_SESSION['nome']);
+        unset($_SESSION['senha']);
+        header('Location: index.php');
+        exit();  // Importante adicionar o exit() após o redirecionamento
+    }
 
     // Fechar a conexão após as consultas
     CloseCon($conn);

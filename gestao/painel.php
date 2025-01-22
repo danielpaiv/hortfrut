@@ -1,9 +1,9 @@
 
 <?php
-    include 'db_connection.php';
 
+    session_start();
     
-    
+    include 'db_connection.php';
 
     // Configurar o fuso horário para horário de Brasília
     date_default_timezone_set('America/Sao_Paulo');
@@ -84,10 +84,6 @@
 
     
     //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
-
-    session_start();
-    include_once('db_connection.php');
-
     // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
     if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
         unset($_SESSION['nome']);

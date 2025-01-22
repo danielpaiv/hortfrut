@@ -1,4 +1,7 @@
-<?php
+<?php   
+
+    session_start();
+
     include 'db_connection.php';
 
     // Abrir conexão com o banco de dados
@@ -7,6 +10,15 @@
     // Consultar os dados da tabela estoque
     $sql_estoque = "SELECT * FROM estoque";
     $result_estoque = $conn->query($sql_estoque);
+
+    //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+    // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+    if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+        unset($_SESSION['nome']);
+        unset($_SESSION['senha']);
+        header('Location: index.php');
+        exit();  // Importante adicionar o exit() após o redirecionamento
+    }
 
     // Fechar a conexão após as consultas
     CloseCon($conn);
@@ -152,7 +164,7 @@
         <a href="financeiro.php">Financeiro</a>
         <a href="formulario_estoque.php">Adicionar estoque</a>
         <a href="perdas.php">Registrar Perdas</a>
-        <a href="#">Mais opções</a>
+        <a href="sair.php">Sair</a>
     </nav>
     <main id="conteudo">
 

@@ -1,34 +1,34 @@
 <?php
-include 'db_connection.php';
+    session_start();
+
+    // Verificar se a sessão contém os dados esperados
+    if (isset($_SESSION['id']) && isset($_SESSION['nome'])) {
+        echo 'ID : ' . $_SESSION['user_id'] . '<br>';
+        echo 'Nome : ' . $_SESSION['nome'] . '<br>';
+    } else {
+        echo 'Nenhum dado de usuário encontrado na sessão.';
+    }
+    include 'db_connection.php';
 
 
+    // Abrir conexão com o banco de dados
+    $conn = OpenCon();
 
+    // Consultar os produtos no estoque
+    $sql_estoque = "SELECT id, produto FROM estoque";
+    $result_estoque = $conn->query($sql_estoque);
 
-// Abrir conexão com o banco de dados
-$conn = OpenCon();
+    //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
+    // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
+    if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
+        unset($_SESSION['nome']);
+        unset($_SESSION['senha']);
+        header('Location: index.php');
+        exit();  // Importante adicionar o exit() após o redirecionamento
+    }
 
-// Consultar os produtos no estoque
-$sql_estoque = "SELECT id, produto FROM estoque";
-$result_estoque = $conn->query($sql_estoque);
-
-
-
-
-//esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
-
-session_start();
-include_once('db_connection.php');
-
-// Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
-if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
-    unset($_SESSION['nome']);
-    unset($_SESSION['senha']);
-    header('Location: index.php');
-    exit();  // Importante adicionar o exit() após o redirecionamento
-}
-
-// Fechar a conexão após a consulta
-CloseCon($conn);
+    // Fechar a conexão após a consulta
+    CloseCon($conn);
 ?>
 
 <!DOCTYPE html>
@@ -100,6 +100,8 @@ CloseCon($conn);
             background-color: #fff;
             padding: 15px;
             border-radius: 5px;
+            height: 4000px; /* Ajusta a altura conforme o conteúdo */
+
            /* width: 100%;
             margin-left:20%;*/
         }
@@ -372,23 +374,30 @@ CloseCon($conn);
     </script>
 
 
-
-
-
-
-
-
-
-
-
-
-
     <script>
 
         document.addEventListener("keydown", function(event) {
-            // Verifica se a tecla pressionada foi aspas simples ou aspas duplas
+            // Verifica se a tecla pressionada foi seta para direita
             if (event.key === 'ArrowRight' || event.key === "'") {
                 window.location.href = "estoque.php"; // Redireciona para o arquivo estoque.php
+            }
+
+            
+        });
+
+        document.addEventListener("keydown", function(event) {
+            // Verifica se a tecla pressionada foi a letra V
+            if (event.key === 'v' || event.key === "'") {
+                window.location.href = "vendas.php"; // Redireciona para o arquivo estoque.php
+            }
+
+            
+        });
+
+        document.addEventListener("keydown", function(event) {
+            // Verifica se a tecla pressionada foi a letra V
+            if (event.key === 's' || event.key === "'") {
+                window.location.href = "sair.php"; // Redireciona para o arquivo estoque.php
             }
 
             
@@ -527,6 +536,7 @@ CloseCon($conn);
         }
 
         // Função de adicionar ao carrinho
+         // Função de adicionar ao carrinho
         function addToCart() {
             const product = document.getElementById("product").value;
             const quantity = parseFloat(document.getElementById("quantity").value) || 0;
@@ -599,14 +609,24 @@ CloseCon($conn);
                 formData.append("card-payment", card);
                 formData.append("pix-payment", pix);
 
+                // Enviar o ID do usuário da sessão
+                const userId = <?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0; ?>; // Garantir que o user_id esteja disponível
+                if (userId > 0) {
+                    formData.append("user-id", userId);
+                } else {
+                    alert("Usuário não autenticado.");
+                    return;
+                }
+
                 fetch("process_form.php", {
                     method: "POST",
                     body: formData,
                 })
                 fetch("salvar_faturamento.php", {
-                    method: "POST",
-                    body: formData,
-                })
+                        method: "POST",
+                        body: formData,
+                    })
+
                 .then(response => response.text())
                 .then(data => {
                     alert("Venda finalizada com sucesso!");

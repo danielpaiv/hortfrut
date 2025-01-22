@@ -1,5 +1,20 @@
 <?php
+    session_start();
     include 'db_connection.php';
+    // Verificar se a sessão contém os dados esperados
+    if (isset($_SESSION['id']) && isset($_SESSION['nome'])) {
+        echo 'ID : ' . $_SESSION['user_id'] . '<br>';
+        echo 'Nome : ' . $_SESSION['nome'] . '<br>';
+    } else {
+        echo 'Nenhum dado de usuário encontrado na sessão.';
+    }
+
+
+    // Verificar se o usuário está autenticado
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: index.php');  // Redireciona para a página de login caso não esteja logado
+        exit();  // Importante adicionar o exit() após o redirecionamento
+    }
 
     // Abrir conexão com o banco de dados
     $conn = OpenCon();
@@ -11,26 +26,30 @@
     $data_inicio = isset($_GET['data_inicio']) ? $_GET['data_inicio'] : $data_atual;
     $data_fim = isset($_GET['data_fim']) ? $_GET['data_fim'] : $data_atual;
 
-    // Consultar vendas dentro do período de data selecionado
+    // Consultar vendas dentro do período de data selecionado para o usuário logado
     $sql_vendas = "SELECT produto, SUM(quantidade) AS total_quantidade,
                                  SUM(valor_total) AS total_valor
-                                FROM vendas WHERE data_venda BETWEEN '$data_inicio' AND '$data_fim'
+                                FROM vendas 
+                                WHERE data_venda BETWEEN ? AND ? AND user_id = ?
                                 GROUP BY produto";
-    $result_vendas = $conn->query($sql_vendas);
+    $stmt_vendas = $conn->prepare($sql_vendas);
+    $stmt_vendas->bind_param('sss', $data_inicio, $data_fim, $_SESSION['user_id']);  // Filtra pelo ID do usuário logado
+    $stmt_vendas->execute();
+    $result_vendas = $stmt_vendas->get_result();
 
-    // Consultar dados financeiros
+    // Consultar dados financeiros dentro do período de data selecionado para o usuário logado
     $sql_financeiro = "SELECT   SUM(pagamento_dinheiro) AS total_dinheiro, 
                                 SUM(pagamento_cartao) AS total_cartao, 
                                 SUM(pagamento_pix) AS total_pix, 
                                 SUM(pagamento_dinheiro + pagamento_cartao + pagamento_pix) AS sub_total
-                                FROM faturamento WHERE data_venda BETWEEN '$data_inicio' AND '$data_fim'";
-    $result_financeiro = $conn->query($sql_financeiro);
-
+                                FROM faturamento 
+                                WHERE data_venda BETWEEN ? AND ? AND user_id = ?";
+    $stmt_financeiro = $conn->prepare($sql_financeiro);
+    $stmt_financeiro->bind_param('sss', $data_inicio, $data_fim, $_SESSION['user_id']);  // Filtra pelo ID do usuário logado
+    $stmt_financeiro->execute();
+    $result_financeiro = $stmt_financeiro->get_result();
 
     //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
-
-    session_start();
-    include_once('db_connection.php');
 
     // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
     if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
@@ -39,9 +58,13 @@
         header('Location: index.php');
         exit();  // Importante adicionar o exit() após o redirecionamento
     }
+
     // Fechar a conexão após as consultas
+    $stmt_vendas->close();
+    $stmt_financeiro->close();
     CloseCon($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">

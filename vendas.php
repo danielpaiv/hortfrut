@@ -1,5 +1,23 @@
 <?php
+    session_start();
+
+   
+    // Verificar se a sessão contém os dados esperados
+    if (isset($_SESSION['id']) && isset($_SESSION['nome'])) {
+        echo 'ID : ' . $_SESSION['user_id'] . '<br>';
+        echo 'Nome : ' . $_SESSION['nome'] . '<br>';
+    } else {
+        echo 'Nenhum dado de usuário encontrado na sessão.';
+    }
+
+
     include 'db_connection.php';
+
+    // Verificar se o usuário está autenticado
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: index.php');  // Redirecionar para a página de login caso o usuário não esteja logado
+        exit();
+    }
 
     // Abrir conexão com o banco de dados
     $conn = OpenCon();
@@ -10,10 +28,10 @@
     // Obter a data atual
     $data_atual = date('Y-m-d');
 
-    // Consultar as vendas realizadas no dia atual
-    $sql_vendas = "SELECT * FROM vendas WHERE DATE(data_venda) = ? ORDER BY data_venda DESC";
+    // Consultar as vendas realizadas no dia atual para o usuário logado
+    $sql_vendas = "SELECT * FROM vendas WHERE DATE(data_venda) = ? AND user_id = ? ORDER BY data_venda DESC";
     $stmt = $conn->prepare($sql_vendas);
-    $stmt->bind_param('s', $data_atual);
+    $stmt->bind_param('ss', $data_atual, $_SESSION['user_id']);  // Usar o ID do usuário logado para filtrar as vendas
     $stmt->execute();
     $result_vendas = $stmt->get_result();
 
@@ -27,21 +45,16 @@
     }
 
     // Obter a data atual ou a data fornecida pelo usuário
-    $data_atual = date('Y-m-d');
     $data_filtro = isset($_GET['filter-date']) ? $_GET['filter-date'] : $data_atual;
 
-    // Consultar as vendas realizadas na data selecionada
-    $sql_vendas = "SELECT * FROM vendas WHERE DATE(data_venda) = ? ORDER BY data_venda DESC";
+    // Consultar as vendas realizadas na data selecionada para o usuário logado
+    $sql_vendas = "SELECT * FROM vendas WHERE DATE(data_venda) = ? AND user_id = ? ORDER BY data_venda DESC";
     $stmt = $conn->prepare($sql_vendas);
-    $stmt->bind_param('s', $data_filtro);
+    $stmt->bind_param('ss', $data_filtro, $_SESSION['user_id']);  // Usar o ID do usuário logado para filtrar as vendas
     $stmt->execute();
     $result_vendas = $stmt->get_result();
 
      //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
-
-     session_start();
-     include_once('db_connection.php');
- 
      // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
      if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
          unset($_SESSION['nome']);
@@ -54,6 +67,7 @@
     $stmt->close();
     CloseCon($conn);
 ?>
+
 
 
 <!DOCTYPE html>
