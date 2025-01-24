@@ -2,7 +2,7 @@
     session_start();
     include 'db_connection.php';
     // Verificar se a sessão contém os dados esperados
-    if (isset($_SESSION['id']) && isset($_SESSION['nome'])) {
+    if (isset($_SESSION['user_id']) && isset($_SESSION['nome'])) {
         echo 'ID : ' . $_SESSION['user_id'] . '<br>';
         echo 'Nome : ' . $_SESSION['nome'] . '<br>';
     } else {

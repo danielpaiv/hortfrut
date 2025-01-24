@@ -149,7 +149,7 @@
 
                 <div class="form-group">
                     <label for="produto">Produto:</label>
-                    <input type="text" id="produto" name="produto" value="<?php echo $produto['produto']; ?>" required>
+                    <input type="text" id="produto" name="produto" value="<?php echo $produto['produto']; ?>" required autofocus>
                 </div>
 
                 <div class="form-group">
