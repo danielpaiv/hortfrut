@@ -19,6 +19,10 @@
      $sql_usuarios = "SELECT id, nome FROM usuarios";
      $result_usuarios = $conn->query($sql_usuarios);
 
+      // Consultar os nomes da despesas
+      $sql_despesas = "SELECT id, aluguel FROM despesas";
+      $result_despesas = $conn->query($sql_despesas);
+
      //esse codigo é responsável por criptografar a pagina viinculado ao codigo teste login.
     // Verificar se as variáveis de sessão 'email' e 'senha' não estão definidas
     if (!isset($_SESSION['nome']) || !isset($_SESSION['senha'])) {
@@ -170,19 +174,19 @@
 
             <div class=cont></div>
 
-            <h2>Formulário de Perdas</h2>
+            <h2>Formulário de despesas e perdas Perdas</h2>
 
              <form id="loss-form" action="process_perda.php" method="POST">
         <!-- Data da Perda -->
         <div class="form-group">
             <label for="loss-date">Data da Perda:</label>
-            <input type="date" id="loss-date" name="loss-date" required>
+            <input type="date" id="loss-date" name="loss-date" required autofocus>
         </div>
 
         <!-- Produto -->
         <div class="form-group">
             <label for="product">Produto:</label>
-            <select id="product" name="product" required>
+            <select id="product" name="product" >
                 <option value="">Selecione o produto</option>
                 <?php
                     if ($result_estoque->num_rows > 0) {
@@ -196,29 +200,28 @@
             </select>
         </div>
 
-        <!-- Quantidade -->
-        <div class="form-group">
-            <label for="quantity">Quantidade Perdida:</label>
-            <input type="number" id="quantity" name="quantity" step="0.01" min="1" required>
+         <!-- Produto -->
+         <div class="form-group">
+            <label for="despesa">Despesas:</label>
+            <select id="despesa" name="despesa" >
+                <option value="">Selecione a despesa</option >
+                <?php
+                    if ($result_despesas->num_rows > 0) {
+                        while($row = $result_despesas->fetch_assoc()) {
+                            echo "<option value='" . $row['aluguel'] . "'>" . $row['aluguel'] . "</option>";
+                        }
+                    } else {
+                        echo "<option value=''>Nenhuma despesa cadastrado</option>";
+                    }
+                    ?>
+            </select>
         </div>
 
-        <!-- Valor -->
-        <div class="form-group">
-            <label for="value">Valor da perda:</label>
-            <input type="number" id="value" name="valor" step="0.01" min="1" required>
-        </div>
-
-        <!-- Motivo da Perda -->
-        <div class="form-group">
-            <label for="reason">Motivo da Perda:</label>
-            <textarea id="reason" name="reason" rows="4" placeholder="Descreva o motivo da perda..." required></textarea>
-        </div>
-
-        <!-- Responsável -->
-        <div class="form-group">
-            <label for="responsible">Responsável:</label>
-            <select id="responsible" name="responsible" required>
-                <option value="">Selecione o responsável</option>
+         <!-- Responsável -->
+         <div class="form-group">
+            <label for="funcionario">Funcionário:</label>
+            <select id="funcionario" name="funcionario" required>
+                <option value="">Selecione o Funcionário</option>
                 <?php
                     if ($result_usuarios->num_rows > 0) {
                         while($row = $result_usuarios->fetch_assoc()) {
@@ -230,6 +233,41 @@
                     ?>
             </select>
         </div>
+
+        <!-- Quantidade -->
+        <div class="form-group">
+            <label for="quantity">Quantidade Perdida:</label>
+            <input type="number" id="quantity" name="quantity" step="0.01" min="0" required>
+        </div>
+
+        <!-- Valor -->
+        <div class="form-group">
+            <label for="value">Valor:</label>
+            <input type="number" id="value" name="valor" step="0.01" min="0" required>
+        </div>
+
+        <!-- Motivo da Perda -->
+        <div class="form-group">
+            <label for="reason">Descrição:</label>
+            <textarea id="reason" name="reason" rows="4" placeholder="Descreva o motivo da perda..." required></textarea>
+        </div>
+
+        <!-- Responsável 
+        <div class="form-group">
+            <label for="responsible">Responsável:</label>
+            <select id="responsible" name="responsible" >
+                <option value="">Selecione o responsável</option>
+                <?php
+                    if ($result_usuarios->num_rows > 0) {
+                        while($row = $result_usuarios->fetch_assoc()) {
+                            echo "<option value='" . $row['nome'] . "'>" . $row['nome'] . "</option>";
+                        }
+                    } else {
+                        echo "<option value=''>Nenhum usuario cadastrado </option>";
+                    }
+                    ?>
+            </select>
+        </div>-->
 
         <!-- Botão Enviar -->
         <div class="form-group">

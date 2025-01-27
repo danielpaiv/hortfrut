@@ -1,6 +1,8 @@
 <?php
     session_start();
 
+   // Definir o fuso horário para Brasília
+   date_default_timezone_set('America/Sao_Paulo');
    
     // Verificar se a sessão contém os dados esperados
     if (isset($_SESSION['user_id']) && isset($_SESSION['nome'])) {
@@ -22,8 +24,7 @@
     // Abrir conexão com o banco de dados
     $conn = OpenCon();
 
-    // Definir o fuso horário para Brasília
-    date_default_timezone_set('America/Sao_Paulo');
+    
 
     // Obter a data atual
     $data_atual = date('Y-m-d');

@@ -11,14 +11,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Obtém os dados do formulário
     $data_perda = $_POST['loss-date'];
     $produto = $_POST['product'];
+    $despesa = $_POST['despesa'];
+    $funcionario = $_POST['funcionario'];
     $quantidade = $_POST['quantity'];
     $valor = $_POST['valor'];
     $motivo = $_POST['reason'];
-    $responsavel = $_POST['responsible'];
+    //$responsavel = $_POST['responsible'];
 
     // Prepara a query para evitar SQL Injection
-    $stmt = $conn->prepare("INSERT INTO perdas (data_perda, produto, quantidade, valor, motivo, responsavel) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssddss", $data_perda, $produto, $quantidade, $valor, $motivo, $responsavel);
+    $stmt = $conn->prepare("INSERT INTO perdas (data_perda, produto, despesa, funcionario, quantidade, valor, motivo) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssdds", $data_perda, $produto, $despesa, $funcionario, $quantidade, $valor, $motivo);
 
     // Executa a query e verifica sucesso
     if ($stmt->execute()) {

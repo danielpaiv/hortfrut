@@ -192,7 +192,9 @@
         <!-- Campo para Troco -->
         <label for="troco">Digite o valor de Troco:</label>
         <input type="number" name="troco" step="0.01">
-
+        <br>
+        <br>
+        
         <!-- Botão de Imprimir -->
         <button onclick="window.print()">Imprimir Relatório</button>
     </div>
