@@ -10,17 +10,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Obtém os dados do formulário
     $data_perda = $_POST['loss-date'];
-    $produto = $_POST['product'];
-    //$despesa = $_POST['despesa'];
-    //$funcionario = $_POST['funcionario'];
-    $quantidade = $_POST['quantity'];
+    //$produto = $_POST['product'];
+    $despesa = $_POST['despesa'];
+    $funcionario = $_POST['funcionario'];
+    //$quantidade = $_POST['quantity'];
     $valor = $_POST['valor'];
     $motivo = $_POST['reason'];
     //$responsavel = $_POST['responsible'];
 
     // Prepara a query para evitar SQL Injection
-    $stmt = $conn->prepare("INSERT INTO perdas (data_perda, produto, quantidade, valor, motivo) VALUES ( ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssdds", $data_perda, $produto, $quantidade, $valor, $motivo);
+    $stmt = $conn->prepare("INSERT INTO perdas (data_perda, despesa, funcionario, valor, motivo) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssdds", $data_perda, $despesa, $funcionario, $valor, $motivo);
 
     // Executa a query e verifica sucesso
     if ($stmt->execute()) {
@@ -33,6 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->close();
     $conn->close();
 
-    echo "<script>alert('Produto cadastrado com sucesso!'); window.location.href='perdas.php';</script>";
+    echo "<script>alert('Produto cadastrado com sucesso!'); window.location.href='despesas.php';</script>";
 }
 ?>

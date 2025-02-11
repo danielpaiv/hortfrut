@@ -143,7 +143,7 @@
             <a href="editarEstoque.php">Editar estoque</a>
             <a href="relatorio.php">Gerar relatorio</a>
             <a href="perdas.php">Registrar Perdas</a>
-            <a href="visualizar_perdas.php">Perdas</a>
+            <a href="visualizar_perdas.php">Perdas\Despesas</a>
             <a href="sair.php">Sair</a>
         </nav>
     <main id="conteudo">
@@ -164,13 +164,13 @@
                 <!-- Quantidade -->
                 <div class="form-group">
                     <label for="quantidade">Quantidade:</label>
-                    <input type="number" id="quantidade" name="quantidade" step="0.01" min="0" >
+                    <input type="number" id="quantidade" name="quantidade" step="0.01" min="0" required>
                 </div>
 
                 <!-- Preço -->
                 <div class="form-group">
                     <label for="preco">Investimento (R$):</label>
-                    <input type="number" id="preco" name="preco" step="0.01" min="0" >
+                    <input type="number" id="preco" name="preco" step="0.01" min="0" readonly>
                 </div>
 
                 <!-- Preço unitario -->

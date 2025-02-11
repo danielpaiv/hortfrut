@@ -41,7 +41,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário de Perdas</title>
+    <title>Formulário de Despesas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -154,14 +154,14 @@
     <header>
         <!--criei uma class para usar no css e não ter conflito com outros links-->
         <a href="#" class="btn-abrir" onclick="abrirMenu()">&#9776; Menu</a>
-        
+
     </header>
    
     <nav id="menu">
         <a href="#" onclick="facharMenu()">&times; Fechar</a>
         <a href="Painel.php">Painel</a>
         <a href="visualizar_perdas.php">Perdas\Despesas</a>
-        <a href="despesas.php">Registrar Despesas</a>
+        <a href="perdas.php">Registrar Perdas</a>
         <a href="financeiro.php">financeiro</a>
         <a href="editarEstoque.php">Editar estoque</a>
         <a href="formulario_estoque.php">Adicionar produtos</a>
@@ -175,16 +175,16 @@
 
             <div class=cont></div>
 
-            <h2>Formulário de Perdas</h2>
+            <h2>Formulário de despesas</h2>
 
-             <form id="loss-form" action="process_perda.php" method="POST">
+             <form id="loss-form" action="process_perda copy.php" method="POST">
         <!-- Data da Perda -->
         <div class="form-group">
-            <label for="loss-date">Data da Perda:</label>
+            <label for="loss-date">Data da Despesa:</label>
             <input type="date" id="loss-date" name="loss-date" required autofocus>
         </div>
 
-        <!-- Produto -->
+        <!-- Produto 
         <div class="form-group">
             <label for="product">Produto:</label>
             <select id="product" name="product" >
@@ -200,8 +200,8 @@
                     ?>
             </select>
         </div>
-
-    <!-- Produto 
+       -->
+         <!-- Produto -->
          <div class="form-group">
             <label for="despesa">Despesas:</label>
             <select id="despesa" name="despesa" >
@@ -217,8 +217,8 @@
                     ?>
             </select>
         </div>
-    -->
-    <!-- Responsável 
+
+         <!-- Responsável -->
          <div class="form-group">
             <label for="funcionario">Funcionário:</label>
             <select id="funcionario" name="funcionario" required>
@@ -234,13 +234,13 @@
                     ?>
             </select>
         </div>
-    -->
-        <!-- Quantidade -->
+
+        <!-- Quantidade 
         <div class="form-group">
             <label for="quantity">Quantidade Perdida:</label>
             <input type="number" id="quantity" name="quantity" step="0.01" min="0" required>
         </div>
-
+        -->            
         <!-- Valor -->
         <div class="form-group">
             <label for="value">Valor:</label>

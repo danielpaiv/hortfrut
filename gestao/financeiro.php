@@ -205,7 +205,7 @@
         <a href="formulario_estoque.php">Adicionar produtos</a>
         <a href="relatorio.php">Gerar relatorio</a>
         <a href="perdas.php">Registrar Perdas</a>
-        <a href="visualizar_perdas.php">Perdas</a>
+        <a href="visualizar_perdas.php">Perdas\Despesas</a>
         <a href="sair.php">Sair</a>
     </nav>
 
@@ -225,7 +225,7 @@
                     <button type="submit">Filtrar</button>
                 </form>
 
-                <h3>Resumo Financeiro</h3>
+            <!--    <h3>Resumo Financeiro</h3>
                 <table>
                     <thead>
                         <tr>
@@ -242,7 +242,7 @@
                         </tr>
                     </tbody>
                 </table>
-
+            -->
                 <h3>Formas de Pagamento</h3>
                 <table>
                     <thead>

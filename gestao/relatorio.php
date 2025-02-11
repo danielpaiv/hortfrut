@@ -157,7 +157,7 @@
             <a href="editarEstoque.php">Editar estoque</a>
             <a href="formulario_estoque.php">Adicionar produtos</a>
             <a href="perdas.php">Registrar Perdas</a>
-            <a href="visualizar_perdas.php">Perdas</a>
+            <a href="visualizar_perdas.php">Perdas\Despesas</a>
             <a href="sair.php">Sair</a>
         </nav>
 

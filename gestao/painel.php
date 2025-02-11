@@ -247,11 +247,13 @@
     <nav id="menu">
         <a href="#" onclick="facharMenu()">&times; Fechar</a>
         <a href="financeiro.php">financeiro</a>
+        <a href="balanco_geral.php">Balanço geral</a>
         <a href="editarEstoque.php">Editar estoque</a>
         <a href="formulario_estoque.php">Adicionar produtos</a>
         <a href="relatorio.php">Gerar relatorio</a>
         <a href="perdas.php">Registrar Perdas</a>
-        <a href="visualizar_perdas.php">Perdas</a>
+        <a href="despesas.php">Registrar Despesas</a>
+        <a href="visualizar_perdas.php">Perdas\Despesas</a>
         <a href="sair.php">Sair</a>
     </nav>
 
