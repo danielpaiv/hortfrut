@@ -182,7 +182,7 @@
 
         }
         div{
-            display: inline-block;
+            
             background-color: #060642 ;
             padding: 5px;
             text-align: center;
@@ -247,18 +247,18 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Dinheiro (R$)</th>
-                            <th>Cartão (R$)</th>
-                            <th>PIX (R$)</th>
-                            <th>Subtotal (R$)</th>
+                            <th>💵 Dinheiro (R$)</th>
+                            <th>💳 Cartão (R$)</th>
+                            <th>💠 PIX (R$)</th>
+                            <th>📈 Subtotal (R$)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>R$ <?php echo number_format($total_dinheiro, 2, ',', '.'); ?></td>
-                            <td>R$ <?php echo number_format($total_cartao, 2, ',', '.'); ?></td>
-                            <td>R$ <?php echo number_format($total_pix, 2, ',', '.'); ?></td>
-                            <td>R$ <?php echo number_format($total_dinheiro + $total_cartao + $total_pix, 2, ',', '.'); ?></td>
+                            <td>💵R$ <?php echo number_format($total_dinheiro, 2, ',', '.'); ?></td>
+                            <td>💳R$ <?php echo number_format($total_cartao, 2, ',', '.'); ?></td>
+                            <td>💠R$ <?php echo number_format($total_pix, 2, ',', '.'); ?></td>
+                            <td>📈R$ <?php echo number_format($total_dinheiro + $total_cartao + $total_pix, 2, ',', '.'); ?></td>
                         </tr>
                     </tbody>
                 </table>

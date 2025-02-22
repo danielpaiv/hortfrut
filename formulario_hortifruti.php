@@ -141,17 +141,26 @@
             padding: 10px;
             text-align: left;
         }
+        thead{
+            background-color: rgb(0, 37, 160);
+            color: white;
+            
+        }
+        
+        
 
         
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body>
     <div class="buttons">
         <button><a href="verifica_sessao.php" style="color: white; text-decoration: none;">Verificar sessao</a></button>
-        <button><a href="sair.php" style="color: white; text-decoration: none;">Sair</a></button>
+        <button><a href="sair.php" style="color: white; text-decoration: none;"> Sair</a></button>
         <!--<button><a href="financeiro.php" style="color: white; text-decoration: none;">Financeiro</a></button>-->
-        <button><a href="vendas.php" style="color: white; text-decoration: none;">Vendas</a></button>
-        <button onclick="setFocus()"><a href="estoque.php" style="color: white; text-decoration: none;">Estoque</a></button>
+        <button><a href="vendas.php" style="color: white; text-decoration: none;">💲 Vendas</a></button>
+        <button onclick="setFocus()"><a href="estoque.php" style="color: white; text-decoration: none;">📦 Estoque</a></button>
         <!--<button onclick="setFocus()"><a href="editarEstoque.php" style="color: white; text-decoration: none;">Atualizar estoque</a></button>-->
     </div>
 
@@ -192,13 +201,13 @@
             </div>
 
             <div class="form-group">
-                <button type="button" id="add-to-cart">Adicionar ao Carrinho</button>
+                <button type="button" id="add-to-cart">🛒 Adicionar ao Carrinho</button>
             </div>
         </form>
     </div>
     
     <div class="cart">
-        <h3>Carrinho</h3>
+        <h3></h3>
         <table id="cart-table">
             <thead>
                 <tr>
@@ -218,7 +227,7 @@
                 <input type="radio" name="payment-method" value="cash">
                 Dinheiro (R$):
             </label>
-            <input type="number" id="cash-payment" step="0.01" min="0">
+            <input type="number" id="cash-payment" step="0.01" min="0" placeholder="💵 Valor Dinheiro">
         </div>
 
         <div class="form-group">
@@ -226,7 +235,7 @@
                 <input type="radio" name="payment-method" value="card">
                 Cartão (R$):
             </label>
-            <input type="number" id="card-payment" step="0.01" min="0">
+            <input type="number" id="card-payment" step="0.01" min="0" placeholder="💳 Valor Cartão">
         </div>
 
         <div class="form-group">
@@ -234,12 +243,13 @@
                 <input type="radio" name="payment-method" value="pix">
                 PIX (R$):
             </label>
-            <input type="number" id="pix-payment" step="0.01" min="0">
+            <input type="number" id="pix-payment" step="0.01" min="0" placeholder="💠 Valor Pix">
         </div>
 
         <div class="form-group">
-            <button id="finalize-sale">Finalizar Venda</button>
-            <button id="print-cart">Imprimir Carrinho</button>
+            <button id="finalize-sale">✔️ Finalizar Venda</button>
+            <button id="print-cart">🖨️ Imprimir Carrinho</button>
+
         </div>
     </div>
 

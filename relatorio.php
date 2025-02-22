@@ -196,7 +196,7 @@
         <br>
         
         <!-- Botão de Imprimir -->
-        <button onclick="window.print()">Imprimir Relatório</button>
+        <button onclick="window.print()">🖨️Imprimir Relatório</button>
     </div>
     <script>
         // Função para capturar o pressionamento da tecla Esquerda

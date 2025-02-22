@@ -82,6 +82,7 @@
          body{
             font-family: Arial, Helvetica, sans-serif;
             margin: 0px;
+            background-color: rgb(0, 37, 160);
 
         }
         a{
@@ -121,7 +122,7 @@
             transition: margin-left 0.5s;
         }
         table {
-            width: 50%;
+            width: 80%;
             border-collapse: collapse;
             margin: 20px auto;
         }
@@ -129,6 +130,7 @@
             border: 1px solid black;
             padding: 10px;
             text-align: center;
+            background-color: #f2f2f2;
         }
         tfoot {
             font-weight: bold;
@@ -137,6 +139,21 @@
         form {
             text-align: center;
             margin-bottom: 20px;
+        }
+        .container {
+            background-color: rgb(181, 179, 199);
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        div{
+            
+            background-color: #060642 ;
+            padding: 5px;
+            text-align: center;
+            width: 100%;
         }
     </style>
 </head>
@@ -156,79 +173,82 @@
     </nav>
 
     <main id="conteudo">
-        <h2 style="text-align: center;">Balanço Geral</h2>
+        <div class="container">
+            <div></div>
+            <h2 style="text-align: center;">Balanço Geral</h2>
 
-        <!-- Formulário para selecionar datas -->
-        <form method="GET">
-            <label for="data_inicio">Data Início:</label>
-            <input type="date" name="data_inicio" value="<?php echo $data_inicio; ?>" required>
+            <!-- Formulário para selecionar datas -->
+            <form method="GET">
+                <label for="data_inicio">Data Início:</label>
+                <input type="date" name="data_inicio" value="<?php echo $data_inicio; ?>" required>
 
-            <label for="data_fim">Data Fim:</label>
-            <input type="date" name="data_fim" value="<?php echo $data_fim; ?>" required>
+                <label for="data_fim">Data Fim:</label>
+                <input type="date" name="data_fim" value="<?php echo $data_fim; ?>" required>
 
-            <button type="submit">Filtrar</button>
-        </form>
+                <button type="submit">Filtrar</button>
+            </form>
 
-        <table>
-            <tr>
-                <th>Total de Vendas (Filtrado)</th>
-                <th>Total de Produtos Vendidos</th>
-            </tr>
-            <tr>
-                <td>R$ <?php echo number_format($total_vendas, 2, ',', '.'); ?></td>
-                <td><?php echo number_format($total_quantidades, 0, ',', '.'); ?></td>
-            </tr>
-        </table>
-
-        <h2 style="text-align: center;">Faturamento</h2>
-        <table>
-            <tr>
-                <th>Total de Vendas Concluídas</th>
-            </tr>
-            <tr>
-                <td><?php echo number_format($total_faturamento, 0, ',', '.'); ?></td>
-            </tr>
-        </table>
-        
-        <h2 style="text-align: center;">Total de Perdas por Despesa (Filtrado)</h2>
-        <table>
-            <tr>
-                <th>Despesa / Perdas</th>
-                <th>Total</th>
-            </tr>
-            <?php if (!empty($perdas)): ?>
-                <?php foreach ($perdas as $perda): ?>
+            <table>
                 <tr>
-                    <td><?php echo htmlspecialchars($perda['despesa']); ?></td>
-                    <td>R$ <?php echo number_format($perda['total_perdas'], 2, ',', '.'); ?></td>
+                    <th>Total de Vendas (Filtrado)</th>
+                    <th>Total de Produtos Vendidos</th>
                 </tr>
-                <?php endforeach; ?>
-                <tfoot>
+                <tr>
+                    <td>R$ <?php echo number_format($total_vendas, 2, ',', '.'); ?></td>
+                    <td><?php echo number_format($total_quantidades, 0, ',', '.'); ?></td>
+                </tr>
+            </table>
+
+            <h2 style="text-align: center;">Faturamento</h2>
+            <table>
+                <tr>
+                    <th>Total de Vendas Concluídas</th>
+                </tr>
+                <tr>
+                    <td><?php echo number_format($total_faturamento, 0, ',', '.'); ?></td>
+                </tr>
+            </table>
+            
+            <h2 style="text-align: center;">Total de Perdas por Despesa (Filtrado)</h2>
+            <table>
+                <tr>
+                    <th>Despesa / Perdas</th>
+                    <th>Total</th>
+                </tr>
+                <?php if (!empty($perdas)): ?>
+                    <?php foreach ($perdas as $perda): ?>
                     <tr>
-                        <td>Subtotal</td>
-                        <td>R$ <?php echo number_format($subtotal_perdas, 2, ',', '.'); ?></td>
+                        <td><?php echo htmlspecialchars($perda['despesa']); ?></td>
+                        <td>R$ <?php echo number_format($perda['total_perdas'], 2, ',', '.'); ?></td>
                     </tr>
-                </tfoot>
-            <?php else: ?>
-                <tr>
-                    <td colspan="2">Nenhuma perda encontrada no período selecionado.</td>
-                </tr>
-            <?php endif; ?>
-        </table>
+                    <?php endforeach; ?>
+                    <tfoot>
+                        <tr>
+                            <td>Subtotal</td>
+                            <td>R$ <?php echo number_format($subtotal_perdas, 2, ',', '.'); ?></td>
+                        </tr>
+                    </tfoot>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="2">Nenhuma perda encontrada no período selecionado.</td>
+                    </tr>
+                <?php endif; ?>
+            </table>
 
-        <h2 style="text-align: center;">Lucro Líquido</h2>
-        <table>
-            <tr>
-                <th>Total de Vendas</th>
-                <th>Subtotal de Perdas</th>
-                <th>Lucro Líquido</th>
-            </tr>
-            <tr>
-                <td>R$ <?php echo number_format($total_vendas, 2, ',', '.'); ?></td>
-                <td>R$ <?php echo number_format($subtotal_perdas, 2, ',', '.'); ?></td>
-                <td>R$ <?php echo number_format($lucro_liquido, 2, ',', '.'); ?></td>
-            </tr>
-        </table>
+            <h2 style="text-align: center;">Lucro Líquido</h2>
+            <table>
+                <tr>
+                    <th>Total de Vendas</th>
+                    <th>Subtotal de Perdas</th>
+                    <th>Lucro Líquido</th>
+                </tr>
+                <tr>
+                    <td>R$ <?php echo number_format($total_vendas, 2, ',', '.'); ?></td>
+                    <td>R$ <?php echo number_format($subtotal_perdas, 2, ',', '.'); ?></td>
+                    <td>R$ <?php echo number_format($lucro_liquido, 2, ',', '.'); ?></td>
+                </tr>
+            </table>
+        </div>
     </main>
 
     <script>
